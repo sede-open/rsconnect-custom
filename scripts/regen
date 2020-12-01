@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+set -o errexit
+set -o pipefail
+
+main() {
+  : "${RSCONNECT_VERSION:=1.8.6}"
+
+  local top
+  top="$(git rev-parse --show-toplevel)"
+  local jarfile="${top}/openapi-generator-cli.jar"
+  local swaggerfile="${top}/swagger.json"
+
+  curl -fsSL -o "${swaggerfile}" \
+    "https://docs.rstudio.com/connect/${RSCONNECT_VERSION}/api/swagger.json"
+
+  if [[ ! -f "${jarfile}" ]]; then
+    curl -fsSL -o "${jarfile}" \
+      "https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/5.0.0-beta3/openapi-generator-cli-5.0.0-beta3.jar"
+  fi
+
+  set -o xtrace
+  java -jar "${jarfile}" generate \
+    -i "${swaggerfile}" \
+    -o "${top}/src/gen" \
+    -g typescript-axios \
+    --skip-validate-spec
+}
+
+main "${@}"

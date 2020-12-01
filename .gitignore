@@ -102,3 +102,7 @@ dist
 
 # TernJS port file
 .tern-port
+
+/openapi-generator-cli.jar
+/src/gen/git_push.sh
+/swagger.json
