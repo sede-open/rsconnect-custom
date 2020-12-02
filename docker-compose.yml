@@ -9,6 +9,8 @@ services:
       POSTGRES_PASSWORD: notasecret
   connect:
     privileged: true
+    depends_on:
+      - db
     # TODO: when available
     # image: rstudio/rstudio-connect:1.8.6
     image: rstudio/rstudio-connect:1.8.4.2-2
