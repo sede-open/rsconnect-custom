@@ -6,6 +6,8 @@ on:
   pull_request:
     branches: [main]
 jobs:
+  env:
+    RSC_LICENSE: ${{ secrets.RSC_LICENSE }}
   main:
     strategy:
       matrix:
@@ -17,6 +19,8 @@ jobs:
       - uses: actions/setup-node@v2-beta
         with:
           node-version: '12'
-      - run: yarn install
-      - run: yarn build
-      - run: yarn test
+      - run: make
+      - run: git diff --exit-code
+      - if: failure()
+        run: docker-compose logs
+      - run: make down

@@ -1,1 +1,3 @@
-export * from "./gen";
+import { AuditLogsApi, Configuration } from "./gen";
+
+export * from "./gen"
