@@ -6,10 +6,10 @@ const SEED_ADMIN_GEN_CONFIG = new rsconnect.gen.Configuration({
   basePath: 'http://127.0.0.1:23939/__api__'
 })
 
-const SEED_ADMIN_CONFIG = new rsconnect.APIClientConfiguration({
+const SEED_ADMIN_CONFIG: rsconnect.APIClientConfiguration = {
   apiKey: 'f1wc3w4090uv67yhud7j08zjzgvt7yfg',
   baseURL: 'http://127.0.0.1:23939/__api__'
-})
+}
 
 axios.interceptors.request.use((request: AxiosRequestConfig): AxiosRequestConfig => {
   if (process.env.DEBUG !== 'enabled') {
