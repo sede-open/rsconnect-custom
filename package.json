@@ -9,7 +9,7 @@
   "private": true,
   "scripts": {
     "build": "ncc build src/main.ts",
-    "regen": "scripts/regen",
+    "lint": "ts-standard --fix ./src",
     "test": "jest"
   },
   "devDependencies": {

@@ -5,6 +5,8 @@ on:
     tags: v*
   pull_request:
     branches: [main]
+env:
+  RSC_LICENSE: ${{ secrets.RSC_LICENSE }}
 jobs:
   main:
     strategy:
@@ -18,5 +20,8 @@ jobs:
         with:
           node-version: '12'
       - run: yarn install
-      - run: yarn build
-      - run: yarn test
+      - run: make
+      - run: git diff --exit-code
+      - if: failure()
+        run: docker-compose logs
+      - run: make down
