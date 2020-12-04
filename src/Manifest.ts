@@ -1,4 +1,5 @@
 import fs from "fs"
+import path from "path"
 
 import { ManifestFile } from "./ManifestFile";
 
@@ -28,5 +29,25 @@ export class Manifest {
             fileMap.set(key, rawFiles[key])
         })
         return fileMap
+    }
+
+    get title(): string | null {
+        let filename: string | null = null
+        if (this.rawData.has('metadata')) {
+            const metadata = this.rawData.get('metadata')
+            filename = (
+                metadata['entrypoint'] ||
+                metadata['primary_rmd'] ||
+                metadata['primary_html']
+            )
+            if (filename && filename.match(/^[A-Za-z0-9_]+:[A-Za-z0-9_]+$/)) {
+                filename = null
+            }
+        }
+        return this.defaultTitle(filename || path.dirname(this.source))
+    }
+
+    private defaultTitle(fileName: string): string {
+        return path.basename(path.resolve(process.cwd(), fileName))
     }
 }

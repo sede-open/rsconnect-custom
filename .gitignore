@@ -106,6 +106,8 @@ dist
 !/__tests__/data/.gitkeep
 **/rsconnect-python/
 /__tests__/data/*
+/__tests__/pgdata/
+/__tests__/pgdata/*
 /openapi-generator-cli.jar
 /src/gen/git_push.sh
 /swagger.json

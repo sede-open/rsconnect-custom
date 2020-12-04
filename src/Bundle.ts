@@ -1,4 +1,5 @@
 import tmp, { FileResult } from "tmp"
+import { Manifest } from "./Manifest"
 
 if (process.env.DEBUG !== "enabled") {
     tmp.setGracefulCleanup()
@@ -6,10 +7,12 @@ if (process.env.DEBUG !== "enabled") {
 
 export class Bundle {
     public manifestPath?: string
+    public manifest?: Manifest
     private f: FileResult
 
-    constructor(manifestPath?: string) {
+    constructor(manifestPath?: string, manifest?: Manifest) {
         this.manifestPath = manifestPath
+        this.manifest = manifest
         this.f = tmp.fileSync({
             prefix: "rsconnect-ts",
             postfix: "bundle.tar.gz"

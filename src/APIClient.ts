@@ -1,19 +1,19 @@
-import path from "path"
 import axios, { AxiosInstance, AxiosResponse } from "axios"
+import fs from "fs"
 
 import { APIClientConfiguration } from "./APIClientConfiguration"
+import { Application } from "./Application"
 import { Bundle } from "./Bundle"
-import { Bundler } from "./Bundler"
-import { MiniGit } from "./MiniGit"
+import { ClientTaskResponse } from "./ClientTaskResponse"
 import { snake2camel } from "./conversions"
+import { ExtendedBundleResponse } from "./ExtendedBundleResponse"
 import { ListApplicationsParams } from "./ListApplicationParams"
 import { ListApplicationsResponse } from "./ListApplicationsResponse"
+import { VanityRecordResponse } from "./VanityRecordResponse"
 
 export class APIClient {
-    private cfg: APIClientConfiguration
+    public cfg: APIClientConfiguration
     private client: AxiosInstance
-    private bundler: Bundler
-    private git: MiniGit
 
     constructor(cfg: APIClientConfiguration) {
         this.cfg = cfg
@@ -23,42 +23,65 @@ export class APIClient {
                 Authorization: `Key ${this.cfg.apiKey}`
             }
         })
-        this.bundler = new Bundler()
-        this.git = new MiniGit()
     }
 
-    public async deployManifest(manifestPath: string, appPath?: string): Promise<AxiosResponse> {
-        return this.deployBundle(await this.bundler.fromManifest(manifestPath), appPath)
+    public async createApp(appName: string): Promise<Application> {
+        return this.client.post('applications', { name: appName })
+            .then((resp: AxiosResponse) => snake2camel(resp.data))
     }
 
-    public async deployBundle(bundle: Bundle, appPath?: string): Promise<AxiosResponse> {
-        let resolvedAppPath = this.resolveAppPath(bundle.manifestPath, appPath)
-        let appID: string | null = null
-        if (resolvedAppPath !== "") {
-            // TODO: find existing app at this path and assign the app ID
-        }
+    public async getApp(appID: number): Promise<Application> {
+        return this.client.get(`applications/${appID}`)
+            .then((resp: AxiosResponse) => snake2camel(resp.data))
+    }
 
-        if (appID !== null) {
-            // TODO: deploy to the existing app
-        } else {
-            // TODO: deploy as a new app
-        }
+    public async updateApp(appID: number, updates: any): Promise<Application> {
+        return this.client.post(`applications/${appID}`, updates)
+            .then((resp: AxiosResponse) => snake2camel(resp.data))
+    }
 
-        return this.client.get("__healthcheck__", { data: { bogus: true, resolvedAppPath }})
+    public async updateAppVanityURL(appID: number, vanityURL: string): Promise<VanityRecordResponse> {
+        return this.client.post(
+            `applications/${appID}/vanities`,
+            { 'app_id': appID, 'path_prefix': vanityURL }
+        ).then((resp: AxiosResponse) => snake2camel(resp.data))
+    }
+
+    public async uploadApp(appID: number, bundle: Bundle): Promise<ExtendedBundleResponse> {
+        return this.client.post(
+            `applications/${appID}/upload`,
+            fs.createReadStream(bundle.tarballPath)
+        ).then((resp: AxiosResponse) => snake2camel(resp.data))
+    }
+
+    public async deployApp(appID: number, bundleID: number): Promise<ClientTaskResponse> {
+        return this.client.post(
+            `applications/${appID}/deploy`,
+            { bundle: bundleID } 
+        ).then((resp: AxiosResponse) => snake2camel(resp.data))
     }
 
     public async listApplications(params?: ListApplicationsParams): Promise<ListApplicationsResponse> {
         return this.client.get('applications', { params })
-        .then((resp: AxiosResponse) => {
-            const data = resp.data
-            const { applications, count, total, continuation } = data;
-            return {
-                applications: applications.map(snake2camel),
-                count,
-                total,
-                continuation
-            }
-        })
+            .then((resp: AxiosResponse) => {
+                const data = resp.data
+                const { applications, count, total, continuation } = data;
+                return {
+                    applications: applications.map(snake2camel),
+                    count,
+                    total,
+                    continuation
+                }
+            })
+    }
+
+    public async getTask(taskId: string, status?: number): Promise<ClientTaskResponse> {
+        return this.client.get(
+            `tasks/${taskId}`,
+            status
+                ? { params: { 'first_status': status } }
+                : undefined
+        ).then((resp: AxiosResponse) => snake2camel(resp.data))
     }
 
     public async serverSettings(sub?: string | undefined): Promise<AxiosResponse> {
@@ -71,20 +94,5 @@ export class APIClient {
             }
         }
         return this.client.get(path)
-    }
-
-    private resolveAppPath(manifestPath?: string, appPath?: string): string {
-        if (appPath) {
-            return appPath as string
-        }
-        if (!manifestPath) {
-            return ""
-        }
-        const gitTopLevel = this.git.showTopLevel()
-        if (gitTopLevel === null) {
-            return ""
-        }
-        const relPath = path.dirname(manifestPath).replace(gitTopLevel, "")
-        return relPath.trim().replace(/^${path.sep}*/, "")
     }
 }
