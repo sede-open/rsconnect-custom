@@ -83,12 +83,34 @@ describe('rsconnect', () => {
 
   describe('deploy API', () => {
     describe('Deployer + ClientTaskPoller', () => {
-      it('deployManifest', async () => {
+      it('deployManifest with app path', async () => {
         const top = execSync("git rev-parse --show-toplevel").toString().trim()
         const plumberManifest = path.join(top, "__tests__/apps/plumber/manifest.json")
         const client = new rsconnect.APIClient(SEED_ADMIN_CONFIG)
         const deployer = new rsconnect.Deployer(client)
         return deployer.deployManifest(plumberManifest, "/fancy/plumber")
+          .then((resp: DeployTaskResponse) => {
+            expect(resp.taskId).not.toBeNull()
+            return new rsconnect.ClientTaskPoller(client, resp.taskId)
+          })
+          .then(async (poller: rsconnect.ClientTaskPoller) => {
+            for await (const result of poller.poll()) {
+              expect(result).not.toBeNull()
+              expect(result.status).not.toBeNull()
+              expect(result.status.length).toBeGreaterThan(-1)
+            }
+          })
+          .catch((err: any) => {
+            console.trace(err)
+          })
+      })
+
+      it('deployManifest with derived name', async () => {
+        const top = execSync("git rev-parse --show-toplevel").toString().trim()
+        const plumberManifest = path.join(top, "__tests__/apps/plumber/manifest.json")
+        const client = new rsconnect.APIClient(SEED_ADMIN_CONFIG)
+        const deployer = new rsconnect.Deployer(client)
+        return deployer.deployManifest(plumberManifest)
           .then((resp: DeployTaskResponse) => {
             expect(resp.taskId).not.toBeNull()
             return new rsconnect.ClientTaskPoller(client, resp.taskId)

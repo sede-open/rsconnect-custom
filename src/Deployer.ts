@@ -42,7 +42,7 @@ export class Deployer {
         const manifestTitle = bundle.manifest?.title
 
         if (appID === null) {
-            const appName = this.makeDeploymentName(manifestTitle || undefined)
+            const appName = this.makeDeploymentName(manifestTitle || resolvedAppPath)
             app = await this.client.createApp(appName)
             appID = app.id
             reassignTitle = true
@@ -110,7 +110,7 @@ export class Deployer {
             '/' +
             appPath.trim().replace(/${path.sep}/g, "/") +
             '/'
-        ).replace(/\/\//g, '/')
+        ).replace(/\/\//g, '/').replace(/_+/, '_')
     }
 
     private makeDeploymentName(title?: string): string {

@@ -44,7 +44,10 @@ export class Manifest {
                 filename = null
             }
         }
-        return this.defaultTitle(filename || path.dirname(this.source))
+        if (filename == null) {
+            return null
+        }
+        return this.defaultTitle(filename)
     }
 
     private defaultTitle(fileName: string): string {
