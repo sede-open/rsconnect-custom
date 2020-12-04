@@ -1,3 +1,3 @@
 export interface ManifestFile {
-    checksum: string
+  checksum: string
 }

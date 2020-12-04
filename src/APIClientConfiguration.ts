@@ -1,4 +1,4 @@
 export interface APIClientConfiguration {
-    baseURL: string
-    apiKey: string
+  baseURL: string
+  apiKey: string
 }

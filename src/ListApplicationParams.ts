@@ -1,5 +1,5 @@
 export interface ListApplicationsParams {
-    count: number
-    start: number
-    cont: string
+  count: number
+  start: number
+  cont: string
 }

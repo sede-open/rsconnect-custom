@@ -106,4 +106,5 @@ typings/
 /__tests__/data/*
 /__tests__/pgdata/
 /__tests__/pgdata/*
+/lib/
 !/__tests__/data/.gitkeep
