@@ -18,10 +18,15 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2-beta
         with:
-          node-version: '12'
+          node-version: '12.x'
+          registry-url: 'https://npm.pkg.github.com'
       - run: yarn install
       - run: make
       - run: git diff --exit-code
       - if: failure()
         run: docker-compose logs
       - run: make down
+      - if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags')
+        run: yarn publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

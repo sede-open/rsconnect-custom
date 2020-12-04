@@ -2,17 +2,26 @@
   "name": "rsconnect-ts",
   "version": "0.1.0",
   "description": "TypeScript client library for the RStudio Connect API",
-  "repository": "https://github.com/rstudio/rsconnect-ts.git",
   "author": "RStudio Developers <support+rsconnect-ts@rstudio.com>",
   "license": "MIT",
-  "private": true,
+  "repository": "github:rstudio/rsconnect-ts",
+  "main": "lib/main.js",
+  "types": "lib/main.d.ts",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsc",
     "lint": "ts-standard --fix ./src/*.ts",
     "test": "jest"
   },
-  "main": "lib/main.js",
-  "types": "lib/main.d.ts",
   "devDependencies": {
     "@tsconfig/node12": "^1.0.7",
     "@types/jest": "^26.0.16",
