@@ -104,7 +104,7 @@ dist
 .tern-port
 
 !/__tests__/data/.gitkeep
+**/rsconnect-python/
 /__tests__/data/*
-/openapi-generator-cli.jar
-/src/gen/git_push.sh
-/swagger.json
+/__tests__/pgdata/
+/__tests__/pgdata/*

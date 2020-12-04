@@ -8,18 +8,11 @@ all: up yarn-lint yarn-build yarn-test
 
 .PHONY: clean
 clean:
-	rm -rf \
-	  openapi-generator-cli.jar \
-	  swagger.json \
-	  dist/
+	rm -rf dist/
 
 .PHONY: distclean
 distclean: clean
 	rm -rf __tests__/data/*
-
-.PHONY: regen
-regen:
-	scripts/regen
 
 .PHONY: up
 up: .require-license

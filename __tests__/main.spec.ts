@@ -1,15 +1,17 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
+import { execSync } from "child_process"
+import path from "path"
+import { DeployTaskResponse } from '../src/DeployTaskResponse'
+import { ListApplicationsResponse } from '../src/ListApplicationsResponse'
+
 import * as rsconnect from '../src/main'
 
-const SEED_ADMIN_GEN_CONFIG = new rsconnect.gen.Configuration({
-  apiKey: 'Key f1wc3w4090uv67yhud7j08zjzgvt7yfg',
-  basePath: 'http://127.0.0.1:23939/__api__'
-})
+jest.setTimeout(1000 * 60 * 2)
 
-const SEED_ADMIN_CONFIG = new rsconnect.APIClientConfiguration({
+const SEED_ADMIN_CONFIG: rsconnect.APIClientConfiguration = {
   apiKey: 'f1wc3w4090uv67yhud7j08zjzgvt7yfg',
   baseURL: 'http://127.0.0.1:23939/__api__'
-})
+}
 
 axios.interceptors.request.use((request: AxiosRequestConfig): AxiosRequestConfig => {
   if (process.env.DEBUG !== 'enabled') {
@@ -32,28 +34,6 @@ axios.interceptors.response.use((response: AxiosResponse): AxiosResponse<any>  =
   return response
 })
 
-describe('rsconnect.gen', () => {
-  beforeAll(async () => {
-    return axios.get(SEED_ADMIN_GEN_CONFIG.basePath + '/server_settings')
-    .then((response: any) => {
-      expect(response.status).toBe(200)
-    })
-  })
-
-  describe('audit logs API', () => {
-    it('getAuditLogs', async () => {
-      return new rsconnect.gen.AuditLogsApi(SEED_ADMIN_GEN_CONFIG)
-        .getAuditLogs()
-        .then((response: any) => {
-          expect(response).not.toBe(null)
-          expect(response.data).not.toBe(null)
-          expect(response.data.results).not.toBe(null)
-          expect(response.data.results.length).not.toBe(0)
-        })
-    })
-  })
-})
-
 describe('rsconnect', () => {
   describe('server settings API', () => {
     it('serverSettings', async () => {
@@ -72,6 +52,56 @@ describe('rsconnect', () => {
         return client.serverSettings(sub)
           .then((response: AxiosResponse): void => {
             expect(response.status).toBe(200)
+          })
+      })
+    })
+  })
+
+  describe('applications API', () => {
+    it('listApplications', async () => {
+      const client = new rsconnect.APIClient(SEED_ADMIN_CONFIG)
+      return client.listApplications()
+        .then((resp: ListApplicationsResponse) => {
+          expect(resp.count).not.toBeNull()
+          expect(resp.total).not.toBeNull()
+          expect(resp.continuation).not.toBeNull()
+        })
+    })
+
+    describe('ListApplicationsPager', () => {
+      it('listApplications', async () => {
+        const client = new rsconnect.APIClient(SEED_ADMIN_CONFIG)
+        const pager = new rsconnect.ListApplicationsPager(client)
+        const appGen = pager.listApplications()
+        // TODO: seed some applications so that this will iterate
+        for await (const app of appGen) {
+          expect(app).not.toBeNull()
+        }
+      })
+    })
+  })
+
+  describe('deploy API', () => {
+    describe('Deployer + ClientTaskPoller', () => {
+      it('deployManifest', async () => {
+        const top = execSync("git rev-parse --show-toplevel").toString().trim()
+        const plumberManifest = path.join(top, "__tests__/apps/plumber/manifest.json")
+        const client = new rsconnect.APIClient(SEED_ADMIN_CONFIG)
+        const deployer = new rsconnect.Deployer(client)
+        return deployer.deployManifest(plumberManifest, "/fancy/plumber")
+          .then((resp: DeployTaskResponse) => {
+            expect(resp.taskId).not.toBeNull()
+            return new rsconnect.ClientTaskPoller(client, resp.taskId)
+          })
+          .then(async (poller: rsconnect.ClientTaskPoller) => {
+            for await (const result of poller.poll()) {
+              expect(result).not.toBeNull()
+              expect(result.status).not.toBeNull()
+              expect(result.status.length).toBeGreaterThan(-1)
+            }
+          })
+          .catch((err: any) => {
+            console.trace(err)
           })
       })
     })

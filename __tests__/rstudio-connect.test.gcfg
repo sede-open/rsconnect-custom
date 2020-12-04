@@ -10,6 +10,11 @@ Provider = password
 Provider = Postgres
 SeedUsers = true
 
+[Debug]
+Log = router
+Log = services
+Log = url-normalization
+
 [HTTP]
 Listen = :3939
 NoWarning = true
