@@ -1,4 +1,5 @@
 import fs from "fs"
+
 import { ManifestFile } from "./ManifestFile";
 
 export class Manifest {
@@ -15,9 +16,17 @@ export class Manifest {
     }
 
     get files(): Map<string, ManifestFile> {
+        const fileMap = new Map<string, ManifestFile>()
         if (!this.rawData.has('files')) {
-            return new Map<string, ManifestFile>()
+            return fileMap
         }
-        return this.rawData.get('files') as Map<string, ManifestFile>
+        const rawFiles = this.rawData.get('files')
+        Object.keys(rawFiles).forEach((key: string) => {
+            if (key === "packrat/packrat.lock" || key.match(/^packrat\/desc\//)) {
+                return
+            }
+            fileMap.set(key, rawFiles[key])
+        })
+        return fileMap
     }
 }

@@ -1,6 +1,7 @@
-import fs from "fs"
 import path from "path";
 import tar from "tar"
+
+import { log } from "./log"
 import { Bundle } from "./Bundle";
 import { Manifest } from "./Manifest";
 
@@ -9,15 +10,15 @@ export class Bundler {
 
     public async fromManifest(manifestPath: string): Promise<Bundle> {
         const bundle = new Bundle(manifestPath)
-        const manifest = this.loadManifest(manifestPath)
+        const manifest = new Manifest(manifestPath)
+        const fileList = [
+            path.basename(manifestPath),
+        ].concat(Array.from(manifest.files.keys()))
+
         await tar.create(
             { gzip: true, file: bundle.tarballPath, cwd: path.dirname(manifestPath) },
-            [path.basename(manifestPath), ...Object.keys(manifest.files)]
+            fileList
         )
         return bundle
-    }
-
-    private loadManifest(manifestPath: string): Manifest {
-        return JSON.parse(fs.readFileSync(manifestPath).toString('utf-8'))
     }
 }

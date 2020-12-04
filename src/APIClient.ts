@@ -5,6 +5,9 @@ import { APIClientConfiguration } from "./APIClientConfiguration"
 import { Bundle } from "./Bundle"
 import { Bundler } from "./Bundler"
 import { MiniGit } from "./MiniGit"
+import { snake2camel } from "./conversions"
+import { ListApplicationsParams } from "./ListApplicationParams"
+import { ListApplicationsResponse } from "./ListApplicationsResponse"
 
 export class APIClient {
     private cfg: APIClientConfiguration
@@ -41,7 +44,21 @@ export class APIClient {
             // TODO: deploy as a new app
         }
 
-        return this.client.get("__healthcheck__", { data: { resolvedAppPath }})
+        return this.client.get("__healthcheck__", { data: { bogus: true, resolvedAppPath }})
+    }
+
+    public async listApplications(params?: ListApplicationsParams): Promise<ListApplicationsResponse> {
+        return this.client.get('applications', { params })
+        .then((resp: AxiosResponse) => {
+            const data = resp.data
+            const { applications, count, total, continuation } = data;
+            return {
+                applications: applications.map(snake2camel),
+                count,
+                total,
+                continuation
+            }
+        })
     }
 
     public async serverSettings(sub?: string | undefined): Promise<AxiosResponse> {

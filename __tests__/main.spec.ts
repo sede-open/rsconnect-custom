@@ -1,4 +1,8 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
+import { execSync } from "child_process"
+import path from "path"
+import { ListApplicationsResponse } from '../src/ListApplicationsResponse'
+
 import * as rsconnect from '../src/main'
 
 const SEED_ADMIN_GEN_CONFIG = new rsconnect.gen.Configuration({
@@ -45,9 +49,9 @@ describe('rsconnect.gen', () => {
       return new rsconnect.gen.AuditLogsApi(SEED_ADMIN_GEN_CONFIG)
         .getAuditLogs()
         .then((response: any) => {
-          expect(response).not.toBe(null)
-          expect(response.data).not.toBe(null)
-          expect(response.data.results).not.toBe(null)
+          expect(response).not.toBeNull()
+          expect(response.data).not.toBeNull()
+          expect(response.data.results).not.toBeNull()
           expect(response.data.results.length).not.toBe(0)
         })
     })
@@ -74,6 +78,42 @@ describe('rsconnect', () => {
             expect(response.status).toBe(200)
           })
       })
+    })
+  })
+
+  describe('applications API', () => {
+    it('listApplications', async () => {
+      const client = new rsconnect.APIClient(SEED_ADMIN_CONFIG)
+      return client.listApplications()
+        .then((resp: ListApplicationsResponse) => {
+          expect(resp.count).not.toBeNull()
+          expect(resp.total).not.toBeNull()
+          expect(resp.continuation).not.toBeNull()
+        })
+    })
+
+    describe('ListApplicationsPager', () => {
+      it('listApplications', async () => {
+        const client = new rsconnect.APIClient(SEED_ADMIN_CONFIG)
+        const pager = new rsconnect.ListApplicationsPager(client)
+        const appGen = pager.listApplications()
+        // TODO: seed some applications so that this will iterate
+        for await (const app of appGen) {
+          expect(app).not.toBeNull()
+        }
+      })
+    })
+  })
+
+  describe('deploy API', () => {
+    it.skip('TODO deployManifest', async () => {
+      const top = execSync("git rev-parse --show-toplevel").toString().trim()
+      const plumberManifest = path.join(top, "__tests__/apps/plumber/manifest.json")
+      const client = new rsconnect.APIClient(SEED_ADMIN_CONFIG)
+      return client.deployManifest(plumberManifest, "/fancy/plumber")
+        .then((resp: AxiosResponse) => {
+          expect(resp.status).toBe(200)
+        })
     })
   })
 })
