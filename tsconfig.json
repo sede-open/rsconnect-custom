@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "declaration": true,
     // NOTE: the inclusion of "dom" here is a bit misleading, as
     // only the URL and URLSearchParams types are required, and
     // haven't yet been extracted into a common DOM/Node group of
