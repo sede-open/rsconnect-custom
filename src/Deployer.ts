@@ -1,5 +1,6 @@
 import path from "path"
 import crypto from "crypto"
+import { URL } from "url"
 
 import { APIClient } from "./APIClient"
 import { Application } from "./Application"
