@@ -6,7 +6,7 @@ import { ListApplicationsResponse } from '../src/ListApplicationsResponse'
 
 import * as rsconnect from '../src/main'
 
-jest.setTimeout(60000)
+jest.setTimeout(1000 * 60 * 2)
 
 const SEED_ADMIN_CONFIG: rsconnect.APIClientConfiguration = {
   apiKey: 'f1wc3w4090uv67yhud7j08zjzgvt7yfg',
