@@ -1,8 +1,8 @@
-import { APIClient } from "./APIClient";
+import { APIClient } from './APIClient';
 export declare class ClientTaskPoller {
-    private client;
-    private taskId;
-    private sleepInterval;
+    private readonly client;
+    private readonly taskId;
+    private readonly sleepInterval;
     constructor(client: APIClient, taskId: string, sleepInterval?: number);
     poll(timeout?: number): AsyncGenerator<ClientTaskPollResult>;
     private sleepTick;

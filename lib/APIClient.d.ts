@@ -1,15 +1,15 @@
-import { AxiosResponse } from "axios";
-import { APIClientConfiguration } from "./APIClientConfiguration";
-import { Application } from "./Application";
-import { Bundle } from "./Bundle";
-import { ClientTaskResponse } from "./ClientTaskResponse";
-import { ExtendedBundleResponse } from "./ExtendedBundleResponse";
-import { ListApplicationsParams } from "./ListApplicationParams";
-import { ListApplicationsResponse } from "./ListApplicationsResponse";
-import { VanityRecordResponse } from "./VanityRecordResponse";
+import { AxiosResponse } from 'axios';
+import { APIClientConfiguration } from './APIClientConfiguration';
+import { Application } from './Application';
+import { Bundle } from './Bundle';
+import { ClientTaskResponse } from './ClientTaskResponse';
+import { ExtendedBundleResponse } from './ExtendedBundleResponse';
+import { ListApplicationsParams } from './ListApplicationParams';
+import { ListApplicationsResponse } from './ListApplicationsResponse';
+import { VanityRecordResponse } from './VanityRecordResponse';
 export declare class APIClient {
     cfg: APIClientConfiguration;
-    private client;
+    private readonly client;
     constructor(cfg: APIClientConfiguration);
     createApp(appName: string): Promise<Application>;
     getApp(appID: number): Promise<Application>;

@@ -4,7 +4,14 @@ yarn-%:
 	yarn $*
 
 .PHONY: all
-all: up yarn-lint yarn-build yarn-test
+all: up yarn-lint lib/main.js yarn-test
+
+.PHONY: publish
+publish: lib/main.js
+	yarn publish
+
+lib/main.js: $(wildcard src/*.ts)
+	yarn build
 
 .PHONY: clean
 clean:

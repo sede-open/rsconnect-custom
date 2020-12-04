@@ -1,7 +1,7 @@
-import { APIClient } from "./APIClient";
-import { Application } from "./Application";
+import { APIClient } from './APIClient';
+import { Application } from './Application';
 export declare class ListApplicationsPager {
-    private client;
+    private readonly client;
     constructor(client: APIClient);
     listApplications(maxRecords?: number): AsyncGenerator<Application, unknown, unknown>;
 }
