@@ -6,8 +6,8 @@
     // haven't yet been extracted into a common DOM/Node group of
     // types.
     "lib": ["es2019", "es2020.promise", "es2020.bigint", "es2020.string", "dom"],
-    "outDir": "./dist"
+    "outDir": "./lib"
   },
-  "exclude": ["node_modules", "__tests__/**/*.spec.ts", "__tests__/data/**/*"],
+  "exclude": ["node_modules", "__tests__/**/*.spec.ts", "__tests__/data/**/*", "lib/**/*"],
   "extends": "@tsconfig/node12/tsconfig.json"
 }

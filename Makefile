@@ -8,7 +8,7 @@ all: up yarn-lint yarn-build yarn-test
 
 .PHONY: clean
 clean:
-	rm -rf dist/
+	rm -rf lib/
 
 .PHONY: distclean
 distclean: clean
