@@ -4,7 +4,7 @@
   "description": "TypeScript client library for the RStudio Connect API",
   "author": "RStudio Developers <support+rsconnect-ts@rstudio.com>",
   "license": "MIT",
-  "repository": "github:rstudio/rsconnect-ts",
+  "repository": "git://github.com/rstudio/rsconnect-ts.git",
   "main": "lib/main.js",
   "types": "lib/main.d.ts",
   "directories": {
@@ -15,7 +15,8 @@
     "lib"
   ],
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "registry": "https://npm.pkg.github.com"
   },
   "scripts": {
     "build": "tsc",
