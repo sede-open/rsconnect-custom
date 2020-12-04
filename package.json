@@ -12,7 +12,7 @@
     "lint": "ts-standard --fix ./src",
     "test": "jest"
   },
-  "types": "./dist/index.d.ts",
+  "types": "./dist/main.d.ts",
   "devDependencies": {
     "@tsconfig/node12": "^1.0.7",
     "@types/jest": "^26.0.16",
