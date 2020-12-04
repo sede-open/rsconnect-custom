@@ -35,4 +35,4 @@ export interface Application {
     ownerLocked: boolean
     isScheduled: boolean
     git?: string
-?
+}
