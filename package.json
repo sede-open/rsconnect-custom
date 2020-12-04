@@ -9,9 +9,11 @@
   "private": true,
   "scripts": {
     "build": "ncc build src/main.ts",
+    "build-declaration": "tsc --emitDeclarationOnly --declaration --outFile dist/index.d.ts",
     "lint": "ts-standard --fix ./src",
     "test": "jest"
   },
+  "types": "./dist/index.d.ts",
   "devDependencies": {
     "@tsconfig/node12": "^1.0.7",
     "@types/jest": "^26.0.16",

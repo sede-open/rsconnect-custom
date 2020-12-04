@@ -80,7 +80,6 @@ typings/
 
 # Nuxt.js build / generate output
 .nuxt
-dist
 
 # Gatsby files
 .cache/
@@ -103,8 +102,11 @@ dist
 # TernJS port file
 .tern-port
 
-!/__tests__/data/.gitkeep
 **/rsconnect-python/
 /__tests__/data/*
 /__tests__/pgdata/
 /__tests__/pgdata/*
+/dist/index.js
+
+!/__tests__/data/.gitkeep
+!/dist/index.d.ts

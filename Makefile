@@ -4,7 +4,13 @@ yarn-%:
 	yarn $*
 
 .PHONY: all
-all: up yarn-lint yarn-build yarn-test
+all: up yarn-lint yarn-build build-declaration yarn-test
+
+.PHONY: build-declaration
+build-declaration: dist/index.d.ts
+
+dist/index.d.ts: $(wildcard src/**/*.ts)
+	yarn build-declaration
 
 .PHONY: clean
 clean:
