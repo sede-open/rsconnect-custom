@@ -17,10 +17,6 @@
   "files": [
     "lib"
   ],
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://npm.pkg.github.com/rstudio"
-  },
   "scripts": {
     "build": "tsc",
     "lint": "ts-standard --fix ./src/*.ts",
