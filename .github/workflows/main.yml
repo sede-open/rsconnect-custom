@@ -7,6 +7,7 @@ on:
     branches: [main]
 env:
   RSC_LICENSE: ${{ secrets.RSC_LICENSE }}
+  NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
 jobs:
   main:
     strategy:
@@ -19,7 +20,6 @@ jobs:
       - uses: actions/setup-node@v2-beta
         with:
           node-version: '12.x'
-          registry-url: 'https://npm.pkg.github.com'
       - run: yarn install
       - run: make
       - run: git diff --exit-code
@@ -31,6 +31,7 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - if: startsWith(github.ref, 'refs/heads')
-        run: npm publish --dry-run
+        # run: npm publish --dry-run
+        run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
