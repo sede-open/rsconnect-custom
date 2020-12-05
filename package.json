@@ -1,5 +1,5 @@
 {
-  "name": "rsconnect-ts",
+  "name": "@meatballhat-rstudio/rsconnect-ts",
   "version": "0.1.1",
   "description": "TypeScript client library for the RStudio Connect API",
   "author": "RStudio Developers <support+rsconnect-ts@rstudio.com>",
@@ -17,6 +17,9 @@
   "files": [
     "lib"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsc",
     "lint": "ts-standard --fix ./src/*.ts",
