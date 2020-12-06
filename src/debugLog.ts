@@ -1,5 +1,7 @@
 import util from 'util'
 
+import { NoArgsReturnsString } from './function-types'
+
 const logName = 'rsconnect-ts'
 
 function debugMatchLogName (s: string): boolean {
@@ -19,9 +21,7 @@ const rawDebugLog = util.debuglog(logName)
 
 export const debugEnabled = getDebugEnabled()
 
-export type DebugLogStringer = () => string
-
-export function debugLog (f: DebugLogStringer): void {
+export function debugLog (f: NoArgsReturnsString): void {
   if (!debugEnabled) {
     return
   }

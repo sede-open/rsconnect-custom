@@ -1,5 +1,5 @@
 import { APIClient } from './APIClient'
-import { Application } from './Application'
+import { Application } from './api-types'
 import { snake2camel } from './conversions'
 import { debugLog } from './debugLog'
 

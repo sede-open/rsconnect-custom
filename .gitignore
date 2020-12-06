@@ -1,4 +1,5 @@
 **/rsconnect-python/
+.npmrc
 /lib/
 
 *.lcov

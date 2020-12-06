@@ -1,7 +1,9 @@
 import fs from 'fs'
 import path from 'path'
 
-import { ManifestFile } from './ManifestFile'
+export interface ManifestFile {
+  checksum: string
+}
 
 export class Manifest {
   public source: string

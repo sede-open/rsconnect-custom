@@ -3,11 +3,13 @@ import { URL } from 'url'
 
 import { debugLog } from './debugLog'
 import { APIClient } from './APIClient'
-import { Application } from './Application'
 import { Bundle } from './Bundle'
 import { Bundler } from './Bundler'
-import { ClientTaskResponse } from './ClientTaskResponse'
-import { DeployTaskResponse } from './DeployTaskResponse'
+import {
+  Application,
+  ClientTaskResponse,
+  DeployTaskResponse
+} from './api-types'
 import { ListApplicationsPager } from './ListApplicationsPager'
 import { ApplicationPather } from './ApplicationPather'
 

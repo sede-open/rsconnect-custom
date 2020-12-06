@@ -1,6 +1,8 @@
-import { NoArgsReturnsStringMap } from './NoArgsReturnsStringMap'
-import { NoArgsReturnsNullString } from './NoArgsReturnsNullString'
-import { StringReturnsNullString } from './StringReturnsNullString'
+import {
+  NoArgsReturnsStringMap,
+  NoArgsReturnsNullString,
+  StringReturnsNullString
+} from './function-types'
 
 export interface Git {
   configLocal: NoArgsReturnsStringMap

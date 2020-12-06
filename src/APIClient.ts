@@ -2,15 +2,21 @@ import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 import fs from 'fs'
 
 import { debugLog, debugEnabled } from './debugLog'
-import { APIClientConfiguration } from './APIClientConfiguration'
-import { Application } from './Application'
+import {
+  Application,
+  ClientTaskResponse,
+  ExtendedBundleResponse,
+  ListApplicationsParams,
+  ListApplicationsResponse,
+  VanityRecordResponse
+} from './api-types'
 import { Bundle } from './Bundle'
-import { ClientTaskResponse } from './ClientTaskResponse'
 import { snake2camel } from './conversions'
-import { ExtendedBundleResponse } from './ExtendedBundleResponse'
-import { ListApplicationsParams } from './ListApplicationParams'
-import { ListApplicationsResponse } from './ListApplicationsResponse'
-import { VanityRecordResponse } from './VanityRecordResponse'
+
+export interface APIClientConfiguration {
+  baseURL: string
+  apiKey: string
+}
 
 export class APIClient {
   public cfg: APIClientConfiguration

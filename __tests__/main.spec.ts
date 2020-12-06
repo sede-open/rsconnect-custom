@@ -1,9 +1,11 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 import { execSync } from "child_process"
 import path from "path"
-import { DeployTaskResponse } from '../src/DeployTaskResponse'
-import { ListApplicationsResponse } from '../src/ListApplicationsResponse'
 
+import {
+  DeployTaskResponse,
+  ListApplicationsResponse,
+} from '../src/api-types'
 import * as rsconnect from '../src/main'
 
 jest.setTimeout(1000 * 60 * 2)
@@ -102,6 +104,7 @@ describe('rsconnect', () => {
           })
           .catch((err: any) => {
             console.trace(err)
+            expect(err).toBeNull()
           })
       })
 

@@ -1,5 +1,5 @@
 import { APIClient } from './APIClient'
-import { ClientTaskResponse } from './ClientTaskResponse'
+import { ClientTaskResponse } from './api-types'
 
 export class ClientTaskPoller {
   private readonly client: APIClient
