@@ -32,7 +32,7 @@ export class Manifest {
   }
 
   get title (): string | null {
-    let filename: string | null = null
+    let filename: string | null = path.basename(path.dirname(this.source))
     if (this.rawData.has('metadata')) {
       const metadata = this.rawData.get('metadata')
       for (const prop of ['entrypoint', 'primary_rmd', 'primary_html']) {
@@ -42,17 +42,12 @@ export class Manifest {
           break
         }
       }
-      if (filename?.match(/^[A-Za-z0-9_]+:[A-Za-z0-9_]+$/) !== null) {
-        filename = null
-      }
     }
-    if (filename == null) {
+
+    if (filename === null) {
       return null
     }
-    return this.defaultTitle(filename)
-  }
 
-  private defaultTitle (fileName: string): string {
-    return path.basename(path.resolve(process.cwd(), fileName))
+    return filename
   }
 }

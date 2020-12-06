@@ -51,14 +51,14 @@ export class Deployer {
     const manifestTitle = bundle.manifest?.title
 
     if (appID === null) {
-      const nameInput = (
-        manifestTitle !== null && manifestTitle !== undefined
-          ? manifestTitle
-          : resolvedAppPath
-      )
-      const appName = this.makeDeploymentName(nameInput)
+      const appName = this.makeDeploymentName(manifestTitle, resolvedAppPath)
 
-      debugLog(() => `Deployer: creating new app with name=${appName} from input=${nameInput}`)
+      debugLog(() => [
+        'Deployer: creating new app with',
+        `name=${appName} from`,
+        `title=${JSON.stringify(manifestTitle)},`,
+        `path=${resolvedAppPath}}`
+      ].join(' '))
 
       app = await this.client.createApp(appName)
       appID = app.id
@@ -120,15 +120,21 @@ export class Deployer {
     return found
   }
 
-  private makeDeploymentName (title?: string): string {
-    if (title === null || title === undefined) {
-      title = 'unnamed ' + crypto.randomBytes(15).toString('base64')
+  private makeDeploymentName (title?: string | null, appPath?: string): string {
+    let name = ''
+    if ((title === null || title === undefined) || (appPath === null || appPath === undefined)) {
+      name = 'unnamed ' + crypto.randomBytes(15).toString('base64')
     }
 
-    let name = title.toLowerCase().replace(/ /g, '_')
-    name = name.replace(/[^A-Za-z0-9_ -]+/g, '')
-    name = name.replace(/_+/g, '_')
-    name = name.substring(0, 64)
+    if (appPath !== null && appPath !== undefined) {
+      name = [appPath, name].join('/')
+    }
+
+    name = name.toLowerCase()
+      .replace(/ /g, '_')
+      .replace(/[^A-Za-z0-9_ -]+/g, '')
+      .replace(/_+/g, '_')
+      .substring(0, 64)
 
     if (name.length < 3) {
       for (let i = name.length; i < 3; i++) {
