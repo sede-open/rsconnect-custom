@@ -25,10 +25,11 @@ jobs:
       - if: failure()
         run: docker-compose logs
       - run: make down
-      # - if: startsWith(github.ref, 'refs/tags')
-      #   run: npm publish
-      # - if: startsWith(github.ref, 'refs/heads')
-      #   run: npm publish --dry-run
-      # - run: npm publish
-      #   env:
-      #     NPM_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
+      - run: printf '//registry.npmjs.org/:_authToken=%s\n' "${NPM_AUTH_TOKEN}" | tee .npmrc
+        env:
+          NPM_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
+      - run: npm info
+      - if: startsWith(github.ref, 'refs/tags')
+        run: npm publish
+      - if: startsWith(github.ref, 'refs/heads')
+        run: npm publish --dry-run
