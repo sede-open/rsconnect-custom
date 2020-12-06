@@ -1,6 +1,6 @@
 {
   "name": "@meatballhat-rstudio/rsconnect-ts",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "TypeScript client library for the RStudio Connect API",
   "author": "RStudio Developers <support+rsconnect-ts@rstudio.com>",
   "license": "MIT",
