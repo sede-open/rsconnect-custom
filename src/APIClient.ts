@@ -1,6 +1,7 @@
-import axios, { AxiosInstance, AxiosResponse } from 'axios'
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 import fs from 'fs'
 
+import { debugLog, debugEnabled } from './debugLog'
 import { APIClientConfiguration } from './APIClientConfiguration'
 import { Application } from './Application'
 import { Bundle } from './Bundle'
@@ -23,6 +24,27 @@ export class APIClient {
         Authorization: `Key ${this.cfg.apiKey}`
       }
     })
+    if (debugEnabled) {
+      this.client.interceptors.request.use((r: AxiosRequestConfig): AxiosRequestConfig => {
+        debugLog(() => [
+          'APIClient: request',
+          r.method?.toUpperCase(),
+          JSON.stringify(r.url),
+          `params=${JSON.stringify(r.params)}`,
+          `headers=${JSON.stringify(r.headers)}`
+        ].join(' '))
+        return r
+      })
+
+      this.client.interceptors.response.use((r: AxiosResponse): AxiosResponse => {
+        debugLog(() => [
+          'APIClient: response',
+          `status=${r.status}`,
+          `headers=${JSON.stringify(r.headers)}`
+        ].join(' '))
+        return r
+      })
+    }
   }
 
   public async createApp (appName: string): Promise<Application> {

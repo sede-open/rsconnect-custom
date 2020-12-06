@@ -1,6 +1,7 @@
 import crypto from 'crypto'
 import { URL } from 'url'
 
+import { debugLog } from './debugLog'
 import { APIClient } from './APIClient'
 import { Application } from './Application'
 import { Bundle } from './Bundle'
@@ -27,6 +28,13 @@ export class Deployer {
 
   public async deployBundle (bundle: Bundle, appPath?: string): Promise<DeployTaskResponse> {
     const resolvedAppPath = this.pather.resolve(bundle.manifestPath, appPath)
+
+    debugLog(() => [
+      'Deployer: initial app path resolution',
+      `resolved=${JSON.stringify(resolvedAppPath)}`,
+      `orig=${JSON.stringify(appPath)}`
+    ].join(' '))
+
     let appID: number | null = null
     let app: Application | null = null
     let reassignTitle = false
@@ -35,6 +43,7 @@ export class Deployer {
       // TODO: use an API that doesn't require scanning all applications, if possible
       const existingApp = await this.findExistingApp(resolvedAppPath)
       if (existingApp !== null) {
+        debugLog(() => `Deployer: found existing app=${existingApp.id} at path=${resolvedAppPath}`)
         appID = existingApp.id
       }
     }
@@ -48,10 +57,15 @@ export class Deployer {
           : resolvedAppPath
       )
       const appName = this.makeDeploymentName(nameInput)
+
+      debugLog(() => `Deployer: creating new app with name=${appName} from input=${nameInput}`)
+
       app = await this.client.createApp(appName)
       appID = app.id
       reassignTitle = true
     } else {
+      debugLog(() => `Deployer: getting existing app with id=${(appID as number).toString()}`)
+
       app = await this.client.getApp(appID)
     }
 
@@ -60,6 +74,8 @@ export class Deployer {
     }
 
     if (!app.vanityUrl && resolvedAppPath !== '') {
+      debugLog(() => `Deployer: updating vanity URL for app=${(appID as number).toString()} to path=${resolvedAppPath}`)
+
       await this.client.updateAppVanityURL(appID, resolvedAppPath)
     }
 
@@ -68,7 +84,12 @@ export class Deployer {
       await this.client.updateApp(appID, { title: app.title })
     }
 
+    debugLog(() => `Deployer: uploading bundle for app=${(appID as number).toString()} tarball=${bundle.tarballPath}`)
+
     const uploadedBundle = await this.client.uploadApp(appID, bundle)
+
+    debugLog(() => `Deployer: deploying app=${(appID as number).toString()} bundle=${uploadedBundle.id}`)
+
     return await this.client.deployApp(appID, uploadedBundle.id)
       .then((ct: ClientTaskResponse) => {
         const taskApp = (app as Application)

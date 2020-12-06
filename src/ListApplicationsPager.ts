@@ -1,6 +1,7 @@
 import { APIClient } from './APIClient'
 import { Application } from './Application'
 import { snake2camel } from './conversions'
+import { debugLog } from './debugLog'
 
 export class ListApplicationsPager {
   private readonly client: APIClient
@@ -25,20 +26,28 @@ export class ListApplicationsPager {
     }
 
     while (pageParams.start < maxRecords) {
+      debugLog(() => `ListApplicationsPager: fetching page of applications with pageParams: ${JSON.stringify(pageParams)}`)
       const page = await this.client.listApplications(pageParams)
 
       if (n === 0) {
         if (resetMaxRecords || maxRecords > page.total) {
+          debugLog(() => `ListApplicationsPager: setting max records to page total: ${page.total}`)
           maxRecords = page.total
         }
       }
 
       for (let i = 0; i < page.applications.length; i++) {
         if (n >= maxRecords) {
+          debugLog(() => `ListApplicationsPager: breaking at max records limit ${(maxRecords as number).toString()}`)
           return n
         }
         n++
-        yield snake2camel(page.applications[i])
+
+        const appRecord = snake2camel(page.applications[i])
+
+        debugLog(() => `ListApplicationsPager: yielding app record ${JSON.stringify(appRecord)}`)
+
+        yield appRecord
       }
 
       pageParams.cont = page.continuation
