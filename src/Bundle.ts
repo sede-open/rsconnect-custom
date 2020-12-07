@@ -1,4 +1,5 @@
 import tmp, { FileResult } from 'tmp'
+
 import { Manifest } from './Manifest'
 
 if (process.env.DEBUG !== 'enabled') {

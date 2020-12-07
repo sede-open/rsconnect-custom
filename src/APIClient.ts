@@ -1,15 +1,22 @@
-import axios, { AxiosInstance, AxiosResponse } from 'axios'
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 import fs from 'fs'
 
-import { APIClientConfiguration } from './APIClientConfiguration'
-import { Application } from './Application'
+import { debugLog, debugEnabled } from './debugLog'
+import {
+  Application,
+  ClientTaskResponse,
+  ExtendedBundleResponse,
+  ListApplicationsParams,
+  ListApplicationsResponse,
+  VanityRecordResponse
+} from './api-types'
 import { Bundle } from './Bundle'
-import { ClientTaskResponse } from './ClientTaskResponse'
-import { snake2camel } from './conversions'
-import { ExtendedBundleResponse } from './ExtendedBundleResponse'
-import { ListApplicationsParams } from './ListApplicationParams'
-import { ListApplicationsResponse } from './ListApplicationsResponse'
-import { VanityRecordResponse } from './VanityRecordResponse'
+import { keysToCamel } from './conversions'
+
+export interface APIClientConfiguration {
+  baseURL: string
+  apiKey: string
+}
 
 export class APIClient {
   public cfg: APIClientConfiguration
@@ -23,42 +30,67 @@ export class APIClient {
         Authorization: `Key ${this.cfg.apiKey}`
       }
     })
+    if (debugEnabled) {
+      this.client.interceptors.request.use((r: AxiosRequestConfig): AxiosRequestConfig => {
+        debugLog(() => [
+          'APIClient: request',
+          r.method?.toUpperCase(),
+          JSON.stringify(r.url),
+          `params=${JSON.stringify(r.params)}`,
+          `headers=${JSON.stringify(r.headers)}`
+        ].join(' '))
+        return r
+      })
+
+      this.client.interceptors.response.use((r: AxiosResponse): AxiosResponse => {
+        debugLog(() => [
+          'APIClient: response',
+          `status=${r.status}`,
+          `headers=${JSON.stringify(r.headers)}`
+        ].join(' '))
+        return r
+      })
+    }
+  }
+
+  public get clientPathname (): string {
+    return new URL(this.cfg.baseURL).pathname.replace('/__api__', '')
   }
 
   public async createApp (appName: string): Promise<Application> {
     return await this.client.post('applications', { name: appName })
-      .then((resp: AxiosResponse) => snake2camel(resp.data))
+      .then((resp: AxiosResponse) => keysToCamel(resp.data))
   }
 
   public async getApp (appID: number): Promise<Application> {
     return await this.client.get(`applications/${appID}`)
-      .then((resp: AxiosResponse) => snake2camel(resp.data))
+      .then((resp: AxiosResponse) => keysToCamel(resp.data))
   }
 
   public async updateApp (appID: number, updates: any): Promise<Application> {
     return await this.client.post(`applications/${appID}`, updates)
-      .then((resp: AxiosResponse) => snake2camel(resp.data))
+      .then((resp: AxiosResponse) => keysToCamel(resp.data))
   }
 
   public async updateAppVanityURL (appID: number, vanityURL: string): Promise<VanityRecordResponse> {
     return await this.client.post(
             `applications/${appID}/vanities`,
             { app_id: appID, path_prefix: vanityURL }
-    ).then((resp: AxiosResponse) => snake2camel(resp.data))
+    ).then((resp: AxiosResponse) => keysToCamel(resp.data))
   }
 
   public async uploadApp (appID: number, bundle: Bundle): Promise<ExtendedBundleResponse> {
     return await this.client.post(
             `applications/${appID}/upload`,
             fs.createReadStream(bundle.tarballPath)
-    ).then((resp: AxiosResponse) => snake2camel(resp.data))
+    ).then((resp: AxiosResponse) => keysToCamel(resp.data))
   }
 
   public async deployApp (appID: number, bundleID: number): Promise<ClientTaskResponse> {
     return await this.client.post(
             `applications/${appID}/deploy`,
             { bundle: bundleID }
-    ).then((resp: AxiosResponse) => snake2camel(resp.data))
+    ).then((resp: AxiosResponse) => keysToCamel(resp.data))
   }
 
   public async listApplications (params?: ListApplicationsParams): Promise<ListApplicationsResponse> {
@@ -67,7 +99,7 @@ export class APIClient {
         const data = resp.data
         const { applications, count, total, continuation } = data
         return {
-          applications: applications.map(snake2camel),
+          applications: applications.map(keysToCamel),
           count,
           total,
           continuation
@@ -81,7 +113,7 @@ export class APIClient {
             status !== null && status !== undefined
               ? { params: { first_status: status } }
               : undefined
-    ).then((resp: AxiosResponse) => snake2camel(resp.data))
+    ).then((resp: AxiosResponse) => keysToCamel(resp.data))
   }
 
   public async serverSettings (sub?: string | undefined): Promise<AxiosResponse> {

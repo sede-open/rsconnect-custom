@@ -19,18 +19,17 @@ jobs:
       - uses: actions/setup-node@v2-beta
         with:
           node-version: '12.x'
-          registry-url: 'https://npm.pkg.github.com'
       - run: yarn install
       - run: make
       - run: git diff --exit-code
       - if: failure()
         run: docker-compose logs
       - run: make down
+      - run: printf '//registry.npmjs.org/:_authToken=%s\n' "${NPM_AUTH_TOKEN}" | tee .npmrc
+        env:
+          NPM_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
+      - run: npm info
       - if: startsWith(github.ref, 'refs/tags')
         run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - if: startsWith(github.ref, 'refs/heads')
         run: npm publish --dry-run
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
