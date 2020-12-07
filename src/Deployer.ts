@@ -1,6 +1,7 @@
 import crypto from 'crypto'
 import { URL } from 'url'
 
+import { pathInSlashes } from './conversions'
 import { debugLog } from './debugLog'
 import { APIClient } from './APIClient'
 import { Bundle } from './Bundle'
@@ -45,7 +46,12 @@ export class Deployer {
       // TODO: use an API that doesn't require scanning all applications, if possible
       const existingApp = await this.findExistingApp(resolvedAppPath)
       if (existingApp !== null) {
-        debugLog(() => `Deployer: found existing app=${existingApp.id} at path=${resolvedAppPath}`)
+        debugLog(() => [
+          'Deployer: found existing',
+          `app=${JSON.stringify(existingApp.id)}`,
+          'at',
+          `path=${JSON.stringify(resolvedAppPath)}`
+        ].join(' '))
         appID = existingApp.id
       }
     }
@@ -57,16 +63,26 @@ export class Deployer {
 
       debugLog(() => [
         'Deployer: creating new app with',
-        `name=${appName} from`,
+        `name=${JSON.stringify(appName)}`,
+        'from',
         `title=${JSON.stringify(manifestTitle)},`,
-        `path=${resolvedAppPath}}`
+        `path=${JSON.stringify(resolvedAppPath)}}`
       ].join(' '))
 
       app = await this.client.createApp(appName)
+
+      debugLog(() => [
+        'Deployer: new app created with',
+        `id=${JSON.stringify(app?.id)}`
+      ].join(' '))
+
       appID = app.id
       reassignTitle = true
     } else {
-      debugLog(() => `Deployer: getting existing app with id=${(appID as number).toString()}`)
+      debugLog(() => [
+        'Deployer: getting existing app with',
+        `id=${JSON.stringify(appID)}`
+      ].join(' '))
 
       app = await this.client.getApp(appID)
     }
@@ -76,7 +92,12 @@ export class Deployer {
     }
 
     if (!app.vanityUrl && resolvedAppPath !== '') {
-      debugLog(() => `Deployer: updating vanity URL for app=${(appID as number).toString()} to path=${resolvedAppPath}`)
+      debugLog(() => [
+        'Deployer: updating vanity URL for',
+        `app=${JSON.stringify(appID)}`,
+        'to',
+        `path=${JSON.stringify(resolvedAppPath)}`
+      ].join(' '))
 
       await this.client.updateAppVanityURL(appID, resolvedAppPath)
     }
@@ -86,11 +107,19 @@ export class Deployer {
       await this.client.updateApp(appID, { title: app.title })
     }
 
-    debugLog(() => `Deployer: uploading bundle for app=${(appID as number).toString()} tarball=${bundle.tarballPath}`)
+    debugLog(() => [
+      'Deployer: uploading bundle for',
+      `app=${JSON.stringify(appID)}`,
+      `tarball=${JSON.stringify(bundle.tarballPath)}`
+    ].join(' '))
 
     const uploadedBundle = await this.client.uploadApp(appID, bundle)
 
-    debugLog(() => `Deployer: deploying app=${(appID as number).toString()} bundle=${uploadedBundle.id}`)
+    debugLog(() => [
+      'Deployer: deploying',
+      `app=${JSON.stringify(appID)}`,
+      `bundle=${JSON.stringify(uploadedBundle.id)}`
+    ].join(' '))
 
     return await this.client.deployApp(appID, uploadedBundle.id)
       .then((ct: ClientTaskResponse) => {
@@ -111,13 +140,33 @@ export class Deployer {
 
   private async findExistingApp (appPath: string): Promise<Application | null> {
     let found: Application|null = null
+
+    const matchingPath = pathInSlashes([
+      this.client.clientPathname,
+      appPath
+    ])
+
     const pager = new ListApplicationsPager(this.client)
     for await (const app of pager.listApplications()) {
-      const currentAppPath = new URL(app.url).pathname
-      if (currentAppPath === appPath) {
+      const currentAppPath = pathInSlashes([new URL(app.url).pathname])
+
+      if (currentAppPath === matchingPath) {
         found = app
+
+        debugLog(() => [
+          'Deployer: found matching app at',
+          `path=${JSON.stringify(currentAppPath)}`
+        ].join(' '))
+
         break
       }
+
+      debugLog(() => [
+        'Deployer: skipping mismatched',
+        `currentAppPath=${JSON.stringify(currentAppPath)}`,
+        'for search',
+        `appPath=${JSON.stringify(matchingPath)}`
+      ].join(' '))
     }
     return found
   }

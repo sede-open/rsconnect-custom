@@ -1,6 +1,6 @@
 import { APIClient } from './APIClient'
 import { Application } from './api-types'
-import { snake2camel } from './conversions'
+import { keysToCamel } from './conversions'
 import { debugLog } from './debugLog'
 
 export class ListApplicationsPager {
@@ -43,7 +43,7 @@ export class ListApplicationsPager {
         }
         n++
 
-        const appRecord = snake2camel(page.applications[i])
+        const appRecord = keysToCamel(page.applications[i])
 
         debugLog(() => `ListApplicationsPager: yielding app record ${JSON.stringify(appRecord)}`)
 

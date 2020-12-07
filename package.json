@@ -37,9 +37,11 @@
     "typescript": ">=3.3.1 <4.1.0"
   },
   "dependencies": {
+    "@types/lodash": "^4.14.165",
     "@types/tar": "^4.0.4",
     "@types/tmp": "^0.2.0",
     "axios": "^0.21.0",
+    "lodash": "^4.17.20",
     "tar": "^6.0.5",
     "tmp": "^0.2.1"
   }
