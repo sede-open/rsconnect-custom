@@ -79,7 +79,7 @@ export class ApplicationPather {
     )
     return inSlashes
       .replace(/\.\//g, '/')
-      .replace(/( +|[^-_a-z0-9\/])/ig, '_')
+      .replace(new RegExp('( +|[^-_a-z0-9/])', 'ig'), '_')
       .replace(/\/\//g, '/')
       .replace(/\/_+/, '/_')
   }
