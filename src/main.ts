@@ -1,4 +1,5 @@
 export { APIClient, APIClientConfiguration } from './APIClient'
+export { ApplicationPather } from './ApplicationPather'
 export { ClientTaskPoller } from './ClientTaskPoller'
 export { DeployTaskResponse } from './api-types'
 export { Deployer } from './Deployer'
