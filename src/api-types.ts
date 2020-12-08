@@ -1,3 +1,13 @@
+export interface AppGitRecord {
+  id: number
+  repositoryUrl: string
+  branch: string
+  contentPath: string
+  lastKnownCommit: string
+  enabled: boolean
+  lastError: string
+}
+
 export interface Application {
   id: number
   guid: string
@@ -14,7 +24,7 @@ export interface Application {
   vanityUrl: boolean
   name: string
   title?: string
-  bundleId: number
+  bundleId?: number
   appMode: number
   contentCategory: string
   hasParameters: boolean
@@ -34,7 +44,7 @@ export interface Application {
   ownerEmail: string
   ownerLocked: boolean
   isScheduled: boolean
-  git?: string
+  git?: AppGitRecord
 }
 
 export interface ClientTaskResponse {
@@ -59,6 +69,7 @@ export interface DeployTaskResponse {
   appGuid: string
   appUrl: string
   title: string
+  noOp: boolean
 }
 
 export interface ExtendedBundleResponse {
@@ -71,6 +82,7 @@ export interface ExtendedBundleResponse {
   buildStatus: number
   size?: number
   active: boolean
+  sha1?: string
 }
 
 export interface ListApplicationsParams {

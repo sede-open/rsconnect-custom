@@ -25,11 +25,11 @@ export class Deployer {
     this.pather = new ApplicationPather()
   }
 
-  public async deployManifest (manifestPath: string, appPath?: string): Promise<DeployTaskResponse> {
-    return await this.deployBundle(await this.bundler.fromManifest(manifestPath), appPath)
+  public async deployManifest (manifestPath: string, appPath?: string, force?: boolean): Promise<DeployTaskResponse> {
+    return await this.deployBundle(await this.bundler.fromManifest(manifestPath), appPath, force)
   }
 
-  public async deployBundle (bundle: Bundle, appPath?: string): Promise<DeployTaskResponse> {
+  public async deployBundle (bundle: Bundle, appPath?: string, force?: boolean): Promise<DeployTaskResponse> {
     const resolvedAppPath = this.pather.resolve(bundle.manifestPath, appPath)
 
     debugLog(() => [
@@ -41,6 +41,8 @@ export class Deployer {
     let appID: number | null = null
     let app: Application | null = null
     let reassignTitle = false
+    let existingBundleSize: number | null = null
+    let existingBundleSha1: string | null = null
 
     if (resolvedAppPath !== '') {
       // TODO: use an API that doesn't require scanning all applications, if possible
@@ -52,7 +54,71 @@ export class Deployer {
           'at',
           `path=${JSON.stringify(resolvedAppPath)}`
         ].join(' '))
+
+        app = existingApp
         appID = existingApp.id
+
+        if (existingApp.bundleId !== null && existingApp.bundleId !== undefined) {
+          const existingBundle = await this.client.getBundle(existingApp.bundleId)
+
+          if (existingBundle.size !== null && existingBundle.size !== undefined) {
+            existingBundleSize = existingBundle.size
+          } else {
+            debugLog(() => [
+              'Deployer: existing app',
+              `bundle=${JSON.stringify(existingApp.bundleId)}`,
+              'missing size'
+            ].join(' '))
+          }
+
+          if (existingBundle.sha1 !== null && existingBundle.sha1 !== undefined) {
+            existingBundleSha1 = existingBundle.sha1
+          } else {
+            debugLog(() => [
+              'Deployer: existing app',
+              `bundle=${JSON.stringify(existingApp.bundleId)}`,
+              'missing sha1'
+            ].join(' '))
+          }
+        }
+      }
+    }
+
+    const bundleSize = bundle.size()
+    const bundleSha1 = bundle.sha1()
+
+    if (
+      app !== null &&
+      this.bundleMatchesCurrent(
+        bundleSize,
+        bundleSha1,
+        existingBundleSize,
+        existingBundleSha1
+      ) &&
+      force !== true
+    ) {
+      debugLog(() => [
+        'Deployer: local bundle',
+        `size=${JSON.stringify(bundleSize)}`,
+        'or',
+        `sha1=${JSON.stringify(bundleSha1)}`,
+        'matches existing',
+        `bundle=${JSON.stringify(app?.bundleId)}`,
+        `and force=${JSON.stringify(force)},`,
+        'so returning no-op deploy result'
+      ].join(' '))
+
+      return {
+        taskId: '',
+        appId: app.id,
+        appGuid: app.guid,
+        appUrl: app.url,
+        title: (
+          app.title !== undefined && app.title !== null
+            ? app.title
+            : ''
+        ),
+        noOp: true
       }
     }
 
@@ -133,9 +199,22 @@ export class Deployer {
             taskApp.title !== undefined && taskApp.title !== null
               ? taskApp.title
               : ''
-          )
+          ),
+          noOp: false
         }
       })
+  }
+
+  private bundleMatchesCurrent (
+    bundleSize: number,
+    bundleSha1: string,
+    existingSize: number | null,
+    existingSha1: string | null
+  ): boolean {
+    return (
+      (existingSize !== null && bundleSize === existingSize) ||
+      (existingSha1 !== null && bundleSha1 === existingSha1)
+    )
   }
 
   private async findExistingApp (appPath: string): Promise<Application | null> {
