@@ -42,6 +42,7 @@ export class Deployer {
     let app: Application | null = null
     let reassignTitle = false
     let existingBundleSize: number | null = null
+    let existingBundleSha1: string | null = null
 
     if (resolvedAppPath !== '') {
       // TODO: use an API that doesn't require scanning all applications, if possible
@@ -59,6 +60,7 @@ export class Deployer {
 
         if (existingApp.bundleId !== null && existingApp.bundleId !== undefined) {
           const existingBundle = await this.client.getBundle(existingApp.bundleId)
+
           if (existingBundle.size !== null && existingBundle.size !== undefined) {
             existingBundleSize = existingBundle.size
           } else {
@@ -68,21 +70,38 @@ export class Deployer {
               'missing size'
             ].join(' '))
           }
+
+          if (existingBundle.sha1 !== null && existingBundle.sha1 !== undefined) {
+            existingBundleSha1 = existingBundle.sha1
+          } else {
+            debugLog(() => [
+              'Deployer: existing app',
+              `bundle=${JSON.stringify(existingApp.bundleId)}`,
+              'missing sha1'
+            ].join(' '))
+          }
         }
       }
     }
 
     const bundleSize = bundle.size()
+    const bundleSha1 = bundle.sha1()
 
     if (
       app !== null &&
-      existingBundleSize !== null &&
-      bundleSize === existingBundleSize &&
+      this.bundleMatchesCurrent(
+        bundleSize,
+        bundleSha1,
+        existingBundleSize,
+        existingBundleSha1
+      ) &&
       force !== true
     ) {
       debugLog(() => [
         'Deployer: local bundle',
         `size=${JSON.stringify(bundleSize)}`,
+        'or',
+        `sha1=${JSON.stringify(bundleSha1)}`,
         'matches existing',
         `bundle=${JSON.stringify(app?.bundleId)}`,
         `and force=${JSON.stringify(force)},`,
@@ -184,6 +203,18 @@ export class Deployer {
           noOp: false
         }
       })
+  }
+
+  private bundleMatchesCurrent (
+    bundleSize: number,
+    bundleSha1: string,
+    existingSize: number | null,
+    existingSha1: string | null
+  ): boolean {
+    return (
+      (existingSize !== null && bundleSize === existingSize) ||
+      (existingSha1 !== null && bundleSha1 === existingSha1)
+    )
   }
 
   private async findExistingApp (appPath: string): Promise<Application | null> {

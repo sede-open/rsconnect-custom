@@ -82,6 +82,7 @@ export interface ExtendedBundleResponse {
   buildStatus: number
   size?: number
   active: boolean
+  sha1?: string
 }
 
 export interface ListApplicationsParams {
