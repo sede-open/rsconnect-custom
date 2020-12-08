@@ -25,11 +25,26 @@ export class Deployer {
     this.pather = new ApplicationPather()
   }
 
-  public async deployManifest (manifestPath: string, appPath?: string, force?: boolean): Promise<DeployTaskResponse> {
-    return await this.deployBundle(await this.bundler.fromManifest(manifestPath), appPath, force)
+  public async deployManifest (
+    manifestPath: string,
+    appPath?: string,
+    force?: boolean,
+    accessType?: string
+  ): Promise<DeployTaskResponse> {
+    return await this.deployBundle(
+      await this.bundler.fromManifest(manifestPath),
+      appPath,
+      force,
+      accessType
+    )
   }
 
-  public async deployBundle (bundle: Bundle, appPath?: string, force?: boolean): Promise<DeployTaskResponse> {
+  public async deployBundle (
+    bundle: Bundle,
+    appPath?: string,
+    force?: boolean,
+    accessType?: string
+  ): Promise<DeployTaskResponse> {
     const resolvedAppPath = this.pather.resolve(bundle.manifestPath, appPath)
 
     debugLog(() => [
@@ -168,9 +183,25 @@ export class Deployer {
       await this.client.updateAppVanityURL(appID, resolvedAppPath)
     }
 
+    const appUpdates: any = {}
+
     if (manifestTitle !== undefined && manifestTitle !== null && reassignTitle) {
       app.title = manifestTitle
-      await this.client.updateApp(appID, { title: app.title })
+      appUpdates.title = app.title
+    }
+
+    if (accessType !== undefined && accessType !== null) {
+      app.accessType = accessType
+      appUpdates.access_type = accessType
+    }
+
+    if (Object.keys(appUpdates).length !== 0) {
+      debugLog(() => [
+        'Deployer: updating',
+        `app=${JSON.stringify(appID)}`,
+        `with=${JSON.stringify(appUpdates)}`
+      ].join(' '))
+      await this.client.updateApp(appID, appUpdates)
     }
 
     debugLog(() => [
