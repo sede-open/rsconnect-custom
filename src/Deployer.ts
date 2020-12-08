@@ -71,8 +71,8 @@ export class Deployer {
             ].join(' '))
           }
 
-          if (existingBundle.sha1 !== null && existingBundle.sha1 !== undefined) {
-            existingBundleSha1 = existingBundle.sha1
+          if (existingBundle.metadata !== null && existingBundle.metadata !== undefined) {
+            existingBundleSha1 = existingBundle.metadata.sha1
           } else {
             debugLog(() => [
               'Deployer: existing app',

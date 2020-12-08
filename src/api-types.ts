@@ -72,6 +72,10 @@ export interface DeployTaskResponse {
   noOp: boolean
 }
 
+export interface ExtendedBundleMetadata {
+  sha1: string
+}
+
 export interface ExtendedBundleResponse {
   id: number
   appId: number
@@ -82,7 +86,7 @@ export interface ExtendedBundleResponse {
   buildStatus: number
   size?: number
   active: boolean
-  sha1?: string
+  metadata?: ExtendedBundleMetadata
 }
 
 export interface ListApplicationsParams {
