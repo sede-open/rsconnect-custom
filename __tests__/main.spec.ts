@@ -113,7 +113,7 @@ describe('rsconnect', () => {
         const plumberManifest = path.join(top, "__tests__/apps/plumber/manifest.json")
         const client = new rsconnect.APIClient(SEED_ADMIN_CONFIG)
         const deployer = new rsconnect.Deployer(client)
-        return deployer.deployManifest(plumberManifest)
+        return deployer.deployManifest(plumberManifest, undefined, true, "logged_in")
           .then((resp: DeployTaskResponse) => {
             expect(resp.taskId).not.toBeNull()
             return new rsconnect.ClientTaskPoller(client, resp.taskId)
