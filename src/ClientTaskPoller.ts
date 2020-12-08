@@ -1,3 +1,4 @@
+import { debugLog } from './debugLog'
 import { APIClient } from './APIClient'
 import { ClientTaskResponse } from './api-types'
 
@@ -24,17 +25,40 @@ export class ClientTaskPoller {
     )
     let lastStatus: number | undefined
     while ((Date.now() / 1000 | 0) < pollTimeout) {
+      if (this.taskId === '') {
+        debugLog(() => 'ClientTaskPollResult: returning due to empty task id')
+        return
+      }
+
+      debugLog(() => `ClientTaskPollResult: sleeping ${JSON.stringify(this.sleepInterval)}`)
       await this.sleepTick()
+
+      debugLog(() => [
+        'ClientTaskPollResult: getting',
+        `task=${JSON.stringify(this.taskId)}`,
+        `lastStatus=${JSON.stringify(lastStatus)}`
+      ].join(' '))
+
       const curTask: ClientTaskResponse = await this.client.getTask(
         this.taskId, lastStatus
       )
-      yield {
+
+      const res = {
         status: curTask.status,
         type: curTask.result?.type,
         data: curTask.result?.data
       }
+
+      debugLog(() => [
+        'ClientTaskPollResult: yielding',
+        `result=${JSON.stringify(res)}`
+      ].join(' '))
+
+      yield res
+
       lastStatus = curTask.lastStatus
       if (curTask.finished) {
+        debugLog(() => 'ClientTaskPollResult: returning due to finished')
         return
       }
     }

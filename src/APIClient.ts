@@ -116,6 +116,11 @@ export class APIClient {
     ).then((resp: AxiosResponse) => keysToCamel(resp.data))
   }
 
+  public async getBundle (bundleId: number): Promise<ExtendedBundleResponse> {
+    return await this.client.get(`bundles/${bundleId.toString()}`)
+      .then((resp: AxiosResponse) => keysToCamel(resp.data))
+  }
+
   public async serverSettings (sub?: string | undefined): Promise<AxiosResponse> {
     let path = 'server_settings'
     if (sub !== undefined) {

@@ -1,5 +1,7 @@
+import fs from 'fs'
 import tmp, { FileResult } from 'tmp'
 
+import { debugLog } from './debugLog'
 import { Manifest } from './Manifest'
 
 if (process.env.DEBUG !== 'enabled') {
@@ -22,5 +24,17 @@ export class Bundle {
 
   get tarballPath (): string {
     return this.f.name
+  }
+
+  size (): number {
+    try {
+      return fs.statSync(this.tarballPath).size
+    } catch (err: any) {
+      debugLog(() => [
+        'Bundle: could not get size',
+        `err=${JSON.stringify(err)}`
+      ].join(' '))
+      return -1
+    }
   }
 }
