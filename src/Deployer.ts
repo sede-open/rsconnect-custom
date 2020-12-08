@@ -64,8 +64,8 @@ export class Deployer {
           } else {
             debugLog(() => [
               'Deployer: existing app',
-              `bundle=${existingApp.bundleId}`,
-              'missing size',
+              `bundle=${JSON.stringify(existingApp.bundleId)}`,
+              'missing size'
             ].join(' '))
           }
         }
