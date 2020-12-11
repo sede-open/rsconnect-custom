@@ -6,20 +6,20 @@ import { MiniGit } from '../src/MiniGit'
 const HERE = path.resolve(__dirname, '.')
 
 class NullGit extends MiniGit {
-  public tryExec(): string | null {
+  public tryExec (): string | null {
     return null
   }
 }
 
 class FakeRemoteURLGit extends MiniGit {
-  private fakeRemoteURL: string | null
+  private readonly fakeRemoteURL: string | null
 
-  constructor(fakeRemoteURL: string | null) {
+  constructor (fakeRemoteURL: string | null) {
     super()
     this.fakeRemoteURL = fakeRemoteURL
   }
 
-  public remoteURL(): string | null {
+  public remoteURL (): string | null {
     return this.fakeRemoteURL
   }
 }

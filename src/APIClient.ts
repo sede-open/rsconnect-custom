@@ -1,5 +1,6 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 import fs from 'fs'
+import qs from 'qs'
 
 import { debugLog, debugEnabled } from './debugLog'
 import {
@@ -28,8 +29,18 @@ export class APIClient {
       baseURL: this.cfg.baseURL,
       headers: {
         Authorization: `Key ${this.cfg.apiKey}`
+      },
+      paramsSerializer: (params: any): string => {
+        return qs.stringify(
+          params,
+          {
+            arrayFormat: 'repeat',
+            encode: false
+          }
+        )
       }
     })
+
     if (debugEnabled) {
       this.client.interceptors.request.use((r: AxiosRequestConfig): AxiosRequestConfig => {
         debugLog(() => [

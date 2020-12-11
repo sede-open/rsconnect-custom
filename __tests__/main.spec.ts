@@ -1,6 +1,6 @@
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
-import { execSync } from "child_process"
-import path from "path"
+import { AxiosResponse } from 'axios'
+import { execSync } from 'child_process'
+import path from 'path'
 
 import { ListApplicationsResponse } from '../src/api-types'
 import * as rsconnect from '../src/main'
@@ -12,32 +12,11 @@ const SEED_ADMIN_CONFIG: rsconnect.APIClientConfiguration = {
   baseURL: 'http://127.0.0.1:23939/__api__'
 }
 
-axios.interceptors.request.use((request: AxiosRequestConfig): AxiosRequestConfig => {
-  if (process.env.DEBUG !== 'enabled') {
-    return request
-  }
-  console.log('---> outgoing request headers: %o', request.headers)
-  if (request.data) {
-    console.log('---> outgoing request data: %o', request.data)
-  }
-  return request
-})
-
-axios.interceptors.response.use((response: AxiosResponse): AxiosResponse<any>  => {
-  if (process.env.DEBUG !== 'enabled') {
-    return response
-  }
-  console.log('---> incoming response status: %o', response.status)
-  console.log('---> incoming response headers: %o', response.headers)
-  console.log('---> incoming response data: %o', response.data)
-  return response
-})
-
 describe('rsconnect', () => {
   describe('server settings API', () => {
     it('serverSettings', async () => {
       const client = new rsconnect.APIClient(SEED_ADMIN_CONFIG)
-      return client.serverSettings()
+      return await client.serverSettings()
         .then((response: AxiosResponse): void => {
           expect(response.status).toBe(200)
         })
@@ -48,7 +27,7 @@ describe('rsconnect', () => {
     subSettings.forEach((sub: string) => {
       it(`serverSettings("${sub}")`, async () => {
         const client = new rsconnect.APIClient(SEED_ADMIN_CONFIG)
-        return client.serverSettings(sub)
+        return await client.serverSettings(sub)
           .then((response: AxiosResponse): void => {
             expect(response.status).toBe(200)
           })
@@ -59,7 +38,7 @@ describe('rsconnect', () => {
   describe('applications API', () => {
     it('listApplications', async () => {
       const client = new rsconnect.APIClient(SEED_ADMIN_CONFIG)
-      return client.listApplications()
+      return await client.listApplications()
         .then((resp: ListApplicationsResponse) => {
           expect(resp.count).not.toBeNull()
           expect(resp.total).not.toBeNull()
@@ -83,11 +62,11 @@ describe('rsconnect', () => {
   describe('deploy API', () => {
     describe('Deployer + ClientTaskPoller', () => {
       it('deployManifest with app path', async () => {
-        const top = execSync("git rev-parse --show-toplevel").toString().trim()
-        const plumberManifest = path.join(top, "__tests__/apps/plumber/manifest.json")
+        const top = execSync('git rev-parse --show-toplevel').toString().trim()
+        const plumberManifest = path.join(top, '__tests__/apps/plumber/manifest.json')
         const client = new rsconnect.APIClient(SEED_ADMIN_CONFIG)
         const deployer = new rsconnect.Deployer(client)
-        return deployer.deployManifest({ manifestPath: plumberManifest, appIdentifier: "/fancy/plumber" })
+        return await deployer.deployManifest({ manifestPath: plumberManifest, appIdentifier: '/fancy/plumber' })
           .then((resp: rsconnect.DeployTaskResponse) => {
             expect(resp.taskId).not.toBeNull()
             return new rsconnect.ClientTaskPoller(client, resp.taskId)
@@ -105,12 +84,12 @@ describe('rsconnect', () => {
           })
       })
 
-      it('deployManifest with derived name', async () => {
-        const top = execSync("git rev-parse --show-toplevel").toString().trim()
-        const plumberManifest = path.join(top, "__tests__/apps/plumber/manifest.json")
+      it('deployManifest with name', async () => {
+        const top = execSync('git rev-parse --show-toplevel').toString().trim()
+        const plumberManifest = path.join(top, '__tests__/apps/plumber/manifest.json')
         const client = new rsconnect.APIClient(SEED_ADMIN_CONFIG)
         const deployer = new rsconnect.Deployer(client)
-        return deployer.deployManifest({ manifestPath: plumberManifest, force: true, accessType: "logged_in" })
+        return await deployer.deployManifest({ manifestPath: plumberManifest, force: true, accessType: 'logged_in', appIdentifier: 'can-unique-be-modified' })
           .then((resp: rsconnect.DeployTaskResponse) => {
             expect(resp.taskId).not.toBeNull()
             return new rsconnect.ClientTaskPoller(client, resp.taskId)

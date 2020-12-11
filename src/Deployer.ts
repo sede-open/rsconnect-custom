@@ -1,14 +1,11 @@
 import crypto from 'crypto'
-import { URL } from 'url'
 import { AxiosError } from 'axios'
 
-import { pathInSlashes } from './conversions'
 import { debugLog } from './debugLog'
 import { APIClient } from './APIClient'
 import { Bundle } from './Bundle'
 import { Bundler } from './Bundler'
 import { Application, ClientTaskResponse, ListApplicationsResponse } from './api-types'
-import { ListApplicationsPager } from './ListApplicationsPager'
 import { ApplicationPather } from './ApplicationPather'
 
 export interface DeployManifestParams {
@@ -73,7 +70,7 @@ export class Deployer {
     force,
     requireVanityPath
   }: DeployBundleParams): Promise<DeployTaskResponse> {
-    const resolvedAppPath = this.pather.resolve(appIdentifier, bundle.manifestPath)
+    const resolvedAppPath = this.pather.resolve(bundle.manifestPath, appIdentifier)
     const resolvedAppName = this.makeDeploymentName(appIdentifier, resolvedAppPath)
 
     debugLog(() => [
@@ -163,7 +160,9 @@ export class Deployer {
         .catch((err: any) => {
           debugLog(() => [
             'Deployer: failed to update vanity URL for',
-          `app=${JSON.stringify(app.id)}`
+            `app=${JSON.stringify(app.id)}`,
+            `err=${JSON.stringify(err.message)}`,
+            `data=${JSON.stringify(err.response?.data)}`
           ].join(' '))
 
           if (requireVanityPath === true) {
@@ -289,87 +288,6 @@ export class Deployer {
         }
         return resp.applications[0]
       })
-  }
-
-  private async findExistingApp ({
-    name,
-    guid,
-    path
-  }: {
-    name: string
-    guid: string
-    path: string
-  }): Promise<Application | null> {
-    let found: Application|null = null
-
-    if (guid !== '') {
-      found = await this.findExistingAppByGuid(guid)
-    }
-
-    if (found === null && (name !== '' || path !== '')) {
-      found = await this.findExistingAppByNameOrPath(name, path)
-    }
-
-    return found
-  }
-
-  private async findExistingAppByGuid (guid: string): Promise<Application | null> {
-    return await this.client.getApp(guid)
-      .then((found: Application): Application => found)
-      .catch((err: any): null => {
-        debugLog(() => [
-          'Deployer: no app found with',
-          `guid=${guid}`,
-          `err=${JSON.stringify(err)}`
-        ].join(' '))
-        return null
-      })
-  }
-
-  private async findExistingAppByNameOrPath (name: string, path: string): Promise<Application | null> {
-    let found: Application | null = null
-
-    const matchingPath = pathInSlashes([
-      this.client.clientPathname,
-      path
-    ])
-
-    const pager = new ListApplicationsPager(this.client)
-    for await (const app of pager.listApplications()) {
-      const currentAppPath = pathInSlashes([new URL(app.url).pathname])
-
-      if (app.name === name) {
-        found = app
-
-        debugLog(() => [
-          'Deployer: found matching app with',
-          `name=${JSON.stringify(app.name)}`
-        ].join(' '))
-
-        break
-      }
-
-      if (currentAppPath === matchingPath) {
-        found = app
-
-        debugLog(() => [
-          'Deployer: found matching app with',
-          `path=${JSON.stringify(currentAppPath)}`
-        ].join(' '))
-
-        break
-      }
-
-      debugLog(() => [
-        'Deployer: skipping mismatched',
-        `currentAppPath=${JSON.stringify(currentAppPath)}`,
-        `currentAppName=${JSON.stringify(app.name)}`,
-        'for search',
-        `matchingPath=${JSON.stringify(matchingPath)}`,
-        `matchingName=${JSON.stringify(name)}`
-      ].join(' '))
-    }
-    return found
   }
 
   private makeDeploymentName (appIdentifier?: string | null, appPath?: string | null): string {

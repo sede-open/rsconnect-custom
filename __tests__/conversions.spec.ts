@@ -34,10 +34,10 @@ describe('keysToCamel', () => {
     {
       input: {
         lower: {
-          'nested_snek': 'untouched_value'
+          nested_snek: 'untouched_value'
         },
-        'snakey_key': {
-          'nestedCamel': 'untouched_value'
+        snakey_key: {
+          nestedCamel: 'untouched_value'
         }
       },
       output: {
