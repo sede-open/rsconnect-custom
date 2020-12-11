@@ -2,10 +2,7 @@ import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 import { execSync } from "child_process"
 import path from "path"
 
-import {
-  DeployTaskResponse,
-  ListApplicationsResponse,
-} from '../src/api-types'
+import { ListApplicationsResponse } from '../src/api-types'
 import * as rsconnect from '../src/main'
 
 jest.setTimeout(1000 * 60 * 2)
@@ -90,8 +87,8 @@ describe('rsconnect', () => {
         const plumberManifest = path.join(top, "__tests__/apps/plumber/manifest.json")
         const client = new rsconnect.APIClient(SEED_ADMIN_CONFIG)
         const deployer = new rsconnect.Deployer(client)
-        return deployer.deployManifest(plumberManifest, "/fancy/plumber")
-          .then((resp: DeployTaskResponse) => {
+        return deployer.deployManifest({ manifestPath: plumberManifest, appIdentifier: "/fancy/plumber" })
+          .then((resp: rsconnect.DeployTaskResponse) => {
             expect(resp.taskId).not.toBeNull()
             return new rsconnect.ClientTaskPoller(client, resp.taskId)
           })
@@ -113,8 +110,8 @@ describe('rsconnect', () => {
         const plumberManifest = path.join(top, "__tests__/apps/plumber/manifest.json")
         const client = new rsconnect.APIClient(SEED_ADMIN_CONFIG)
         const deployer = new rsconnect.Deployer(client)
-        return deployer.deployManifest(plumberManifest, undefined, true, "logged_in")
-          .then((resp: DeployTaskResponse) => {
+        return deployer.deployManifest({ manifestPath: plumberManifest, force: true, accessType: "logged_in" })
+          .then((resp: rsconnect.DeployTaskResponse) => {
             expect(resp.taskId).not.toBeNull()
             return new rsconnect.ClientTaskPoller(client, resp.taskId)
           })

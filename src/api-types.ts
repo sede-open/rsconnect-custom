@@ -63,17 +63,8 @@ export interface ClientTaskResult {
   data: any
 }
 
-export interface DeployTaskResponse {
-  taskId: string
-  appId: number
-  appGuid: string
-  appUrl: string
-  title: string
-  noOp: boolean
-}
-
 export interface ExtendedBundleMetadata {
-  sha1: string
+  BundleArchiveSHA1: string
 }
 
 export interface ExtendedBundleResponse {
@@ -90,9 +81,10 @@ export interface ExtendedBundleResponse {
 }
 
 export interface ListApplicationsParams {
-  count: number
-  start: number
-  cont: string
+  count?: number
+  start?: number
+  cont?: string
+  filter?: string[]
 }
 
 export interface ListApplicationsResponse {
