@@ -1,5 +1,6 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 import fs from 'fs'
+import qs from 'qs'
 
 import { debugLog, debugEnabled } from './debugLog'
 import {
@@ -28,8 +29,18 @@ export class APIClient {
       baseURL: this.cfg.baseURL,
       headers: {
         Authorization: `Key ${this.cfg.apiKey}`
+      },
+      paramsSerializer: (params: any): string => {
+        return qs.stringify(
+          params,
+          {
+            arrayFormat: 'repeat',
+            encode: false
+          }
+        )
       }
     })
+
     if (debugEnabled) {
       this.client.interceptors.request.use((r: AxiosRequestConfig): AxiosRequestConfig => {
         debugLog(() => [
@@ -62,12 +73,12 @@ export class APIClient {
       .then((resp: AxiosResponse) => keysToCamel(resp.data))
   }
 
-  public async getApp (appID: number): Promise<Application> {
+  public async getApp (appID: number|string): Promise<Application> {
     return await this.client.get(`applications/${appID}`)
       .then((resp: AxiosResponse) => keysToCamel(resp.data))
   }
 
-  public async updateApp (appID: number, updates: any): Promise<Application> {
+  public async updateApp (appID: number|string, updates: any): Promise<Application> {
     return await this.client.post(`applications/${appID}`, updates)
       .then((resp: AxiosResponse) => keysToCamel(resp.data))
   }
