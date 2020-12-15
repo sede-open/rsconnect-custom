@@ -64,7 +64,7 @@ export interface ClientTaskResult {
 }
 
 export interface ExtendedBundleMetadata {
-  BundleArchiveSHA1: string
+  archive_sha1: string | null
 }
 
 export interface ExtendedBundleResponse {
