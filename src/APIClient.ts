@@ -17,6 +17,7 @@ import { keysToCamel } from './conversions'
 export interface APIClientConfiguration {
   baseURL: string
   apiKey: string
+  axiosConfig?: AxiosRequestConfig
 }
 
 export class APIClient {
@@ -25,11 +26,13 @@ export class APIClient {
 
   constructor (cfg: APIClientConfiguration) {
     this.cfg = cfg
-    this.client = axios.create({
+    let clientCfg = {
       baseURL: this.cfg.baseURL,
       headers: {
         Authorization: `Key ${this.cfg.apiKey}`
       },
+      maxBodyLength: Infinity,
+      maxContentLength: Infinity,
       paramsSerializer: (params: any): string => {
         return qs.stringify(
           params,
@@ -39,7 +42,18 @@ export class APIClient {
           }
         )
       }
-    })
+    }
+
+    if (cfg.axiosConfig !== undefined && cfg.axiosConfig !== null) {
+      clientCfg = { ...clientCfg, ...cfg.axiosConfig }
+    }
+
+    debugLog(() => [
+      'APIClient: building axios client with',
+      `config=${JSON.stringify(clientCfg)}`
+    ].join(' '))
+
+    this.client = axios.create(clientCfg)
 
     if (debugEnabled) {
       this.client.interceptors.request.use((r: AxiosRequestConfig): AxiosRequestConfig => {
