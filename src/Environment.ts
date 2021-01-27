@@ -38,14 +38,22 @@ export class Environment extends Map {
   }
 
   public loadFileEnv (): string|null {
+    const candidateFiles = [
+      process.env.CONNECT_ENV_FILE
+    ].concat(Environment.CANDIDATE_FILES)
+
     debugLog(() => [
       'Environment: loading from file env with',
-      `candidates=${JSON.stringify(Environment.CANDIDATE_FILES)}`
+      `candidates=${JSON.stringify(candidateFiles)}`
     ].join(' '))
 
     let envFile: string|null = null
 
-    for (const candidateFile of Environment.CANDIDATE_FILES) {
+    for (const candidateFile of candidateFiles) {
+      if (candidateFile === undefined) {
+        continue
+      }
+
       if (fs.existsSync(candidateFile)) {
         envFile = candidateFile
         debugLog(() => `Environment: found env file=${JSON.stringify(envFile)}`)
