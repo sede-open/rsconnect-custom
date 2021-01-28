@@ -5,6 +5,7 @@ import qs from 'qs'
 import { debugLog, debugEnabled } from './debugLog'
 import {
   Application,
+  AppEnvironmentResponse,
   ClientTaskResponse,
   ExtendedBundleResponse,
   ListApplicationsParams,
@@ -12,6 +13,7 @@ import {
   VanityRecordResponse
 } from './api-types'
 import { Bundle } from './Bundle'
+import { Environment } from './Environment'
 import { keysToCamel } from './conversions'
 
 export interface APIClientConfiguration {
@@ -130,6 +132,18 @@ export class APIClient {
           continuation
         }
       })
+  }
+
+  public async getAppEnvironment (appID: number): Promise<AppEnvironmentResponse> {
+    return await this.client.get(`applications/${appID}/environment`)
+      .then((resp: AxiosResponse) => keysToCamel(resp.data))
+  }
+
+  public async updateAppEnvironment (appID: number, version: number, env: Environment): Promise<AxiosResponse> {
+    return await this.client.post(
+      `applications/${appID}/environment`,
+      { app_id: appID, version, values: Object.fromEntries(env.entries()) }
+    )
   }
 
   public async getTask (taskId: string, status?: number): Promise<ClientTaskResponse> {
