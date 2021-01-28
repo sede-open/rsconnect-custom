@@ -81,7 +81,7 @@ export class Environment extends Map {
       }
       if (line.includes('=')) {
         const lineParts = line.split('=', 2)
-        const varName = lineParts[0].replace(/^(export|set|)\s+/g, '')
+        const varName = lineParts[0].replace(/^(export|set|)\s+/, '')
         const varValue = lineParts[1].replace(/^['"]/, '').replace(/['"]$/, '')
 
         debugLog(() => [
@@ -95,7 +95,7 @@ export class Environment extends Map {
 
         this.set(varName, varValue)
       } else {
-        const varName = line.replace(/^(export|set|)\s+/g, '')
+        const varName = line.replace(/^(export|set|)\s+/, '')
         const varValue = process.env[varName]
 
         if (varValue !== undefined) {
