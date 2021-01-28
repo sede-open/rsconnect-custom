@@ -37,17 +37,15 @@ export class EnvironmentUpdater {
       return env
     }
 
-    const newVersion = version + 1
-
     debugLog(() => [
-      'EnvironmentUpdater: updating environment with bumped',
-      `version=${newVersion}`,
+      'EnvironmentUpdater: updating environment based on',
+      `version=${version}`,
       'for',
       `app=${appID}`,
       `dir=${dir}`
     ].join(' '))
 
-    await this.client.updateAppEnvironment(appID, newVersion, env)
+    await this.client.updateAppEnvironment(appID, version, env)
     return await this.client.getAppEnvironment(appID)
       .then((resp: AppEnvironmentResponse) => {
         debugLog(() => [
