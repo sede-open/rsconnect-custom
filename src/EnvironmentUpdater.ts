@@ -28,6 +28,15 @@ export class EnvironmentUpdater {
       process.chdir(curDir)
     }
 
+    if (env.size === 0) {
+      debugLog(() => [
+        'EnvironmentUpdater: no environment variables found for',
+        `app=${appID}`,
+        `dir=${dir}`
+      ].join(' '))
+      return env
+    }
+
     const newVersion = version + 1
 
     debugLog(() => [
