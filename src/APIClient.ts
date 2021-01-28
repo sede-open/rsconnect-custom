@@ -136,7 +136,11 @@ export class APIClient {
 
   public async getAppEnvironment (appID: number): Promise<AppEnvironmentResponse> {
     return await this.client.get(`applications/${appID}/environment`)
-      .then((resp: AxiosResponse) => keysToCamel(resp.data))
+      .then((resp: AxiosResponse) => {
+        const camelized = keysToCamel(resp.data)
+        camelized.values = resp.data.values
+        return camelized
+      })
   }
 
   public async updateAppEnvironment (appID: number, version: number, env: Environment): Promise<AxiosResponse> {
