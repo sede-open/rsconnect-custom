@@ -7,8 +7,10 @@ import * as rsconnect from '../src/main'
 describe('Environment', () => {
   let dirPath: string
   let env: rsconnect.Environment
+  let curDir: string
 
   beforeAll(() => {
+    curDir = process.cwd()
     const tmpDir = os.tmpdir()
 
     dirPath = fs.mkdtempSync(path.join(tmpDir, 'rsconnect-ts-'))
@@ -31,6 +33,7 @@ set UPBEAT="ritual"
   })
 
   afterAll(() => {
+    process.chdir(curDir)
     fs.rmdirSync(dirPath, { recursive: true })
   })
 
