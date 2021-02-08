@@ -33,8 +33,10 @@ export class APIClient {
     let clientCfg = {
       baseURL: this.cfg.baseURL,
       headers: {
-        Authorization: `Key ${this.cfg.apiKey}`,
-        'User-Agent': `rsconnect-ts/${pkg.version} (axios)`
+        common: {
+          Authorization: `Key ${this.cfg.apiKey}`,
+          'User-Agent': `rsconnect-ts/${pkg.version} (axios)`
+        }
       },
       maxBodyLength: Infinity,
       maxContentLength: Infinity,
