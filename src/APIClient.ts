@@ -1,4 +1,6 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
+import AxiosCookieJarSupport from 'axios-cookiejar-support'
+import { CookieJar } from 'tough-cookie'
 import fs from 'fs'
 import qs from 'qs'
 
@@ -28,6 +30,7 @@ export class APIClient {
 
   constructor (cfg: APIClientConfiguration) {
     this.cfg = cfg
+
     let clientCfg = {
       baseURL: this.cfg.baseURL,
       headers: {
@@ -43,7 +46,8 @@ export class APIClient {
             encode: false
           }
         )
-      }
+      },
+      withCredentials: true
     }
 
     if (cfg.axiosConfig !== undefined && cfg.axiosConfig !== null) {
@@ -56,6 +60,9 @@ export class APIClient {
     ].join(' '))
 
     this.client = axios.create(clientCfg)
+
+    AxiosCookieJarSupport(this.client)
+    this.client.defaults.jar = new CookieJar()
 
     if (debugEnabled) {
       this.client.interceptors.request.use((r: AxiosRequestConfig): AxiosRequestConfig => {
