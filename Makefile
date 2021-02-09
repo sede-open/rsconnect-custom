@@ -1,4 +1,6 @@
 RSC_LICENSE ?=
+SHELL := bash
+VERSION := $(shell node -e 'console.log(require("$(CURDIR)/package.json").version)')
 
 yarn-%:
 	yarn $*
@@ -10,12 +12,16 @@ all: up yarn-lint lib/main.js yarn-test
 publish: lib/main.js
 	yarn publish
 
-lib/main.js: $(wildcard src/*.ts)
+lib/main.js: $(wildcard src/*.ts) src/Version.ts
 	yarn build
+
+src/Version.ts: package.json
+	@echo '// WARNING: this file is generated' | tee $@ &>/dev/null
+	@echo 'export const Version = "$(VERSION)"' | tee -a $@ &>/dev/null
 
 .PHONY: clean
 clean:
-	rm -rf lib/
+	rm -rf lib/ src/Version.ts
 
 .PHONY: distclean
 distclean: clean
