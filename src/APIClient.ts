@@ -17,7 +17,7 @@ import {
 import { Bundle } from './Bundle'
 import { Environment } from './Environment'
 import { keysToCamel } from './conversions'
-import { version } from '../package.json'
+import { Version } from './Version'
 
 export interface APIClientConfiguration {
   baseURL: string
@@ -32,13 +32,12 @@ export class APIClient {
   constructor (cfg: APIClientConfiguration) {
     this.cfg = cfg
 
-    const versionString: string = version.toString()
     let clientCfg = {
       baseURL: this.cfg.baseURL,
       headers: {
         common: {
           Authorization: `Key ${this.cfg.apiKey}`,
-          'User-Agent': `rsconnect-ts/${versionString} (axios)`
+          'User-Agent': `rsconnect-ts/${Version} (axios)`
         }
       },
       maxBodyLength: Infinity,
