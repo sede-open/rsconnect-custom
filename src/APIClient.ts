@@ -32,12 +32,13 @@ export class APIClient {
   constructor (cfg: APIClientConfiguration) {
     this.cfg = cfg
 
+    const versionString: string = Version.toString()
     let clientCfg = {
       baseURL: this.cfg.baseURL,
       headers: {
         common: {
           Authorization: `Key ${this.cfg.apiKey}`,
-          'User-Agent': `rsconnect-ts/${Version} (axios)`
+          'User-Agent': `rsconnect-ts/${versionString} (axios)`
         }
       },
       maxBodyLength: Infinity,
