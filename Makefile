@@ -2,18 +2,18 @@ RSC_LICENSE ?=
 SHELL := bash
 VERSION := $(shell node -e 'console.log(require("$(CURDIR)/package.json").version)')
 
-yarn-%:
-	yarn $*
+npm-%:
+	npm run $*
 
 .PHONY: all
-all: up yarn-lint lib/main.js yarn-test
+all: up npm-lint lib/main.js npm-test
 
 .PHONY: publish
 publish: lib/main.js
-	yarn publish
+	npm publish
 
 lib/main.js: $(wildcard src/*.ts) src/Version.ts
-	yarn build
+	npm run build
 
 src/Version.ts: package.json
 	@echo '// WARNING: this file is generated' | tee $@ &>/dev/null
