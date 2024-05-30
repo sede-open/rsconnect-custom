@@ -1,7 +1,7 @@
 **/rsconnect-python/
 /lib/
 /src/Version.ts
-.npmrc
+
 *.lcov
 *.log
 *.pid
