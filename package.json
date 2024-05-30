@@ -40,7 +40,7 @@
     "jest": "^26.6.3",
     "lodash": "^4.17.21",
     "qs": "^6.11.0",
-    "tar": "^6.1.13",
+    "tar": "^6.2.1",
     "tmp": "^0.2.1",
     "ts-jest": "^26.5.6",
     "ts-node": "^9.1.1",
@@ -57,7 +57,7 @@
     "axios-cookiejar-support": "^1.0.1",
     "lodash": "^4.17.20",
     "qs": "^6.9.4",
-    "tar": "^6.0.5",
+    "tar": "^6.2.1",
     "tmp": "^0.2.1",
     "@sede-open/rsconnect-ts-custom": "https://github.com/sede-open/rsconnect-ts-custom#active-branch"
   },
